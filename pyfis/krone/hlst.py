@@ -17,27 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import serial
 
+from .k9000_rs485 import Krone9000RS485Controller
 
-class KroneHLSTController:
+
+class Krone9000HLST(Krone9000RS485Controller):
     """
     Controls a HLST (Heizungs- und Lichtsteuerung)
     (heater, fan and light control) board.
     """
     
-    CTRL_READ = 0x81
-    CTRL_WRITE_SINGLE_ACK = 0x82
-    CTRL_WRITE_SINGLE_NOACK = 0x02
-    CTRL_WRITE_BLOCK_ACK = 0x84
-    CTRL_WRITE_BLOCK_NOACK = 0x04
+    BOARD_ID = 0x10
     
     CMD_GET_STATUS = 0x01
     CMD_LOCK = 0xC6
     CMD_UNLOCK = 0xC7
     CMD_CONTROL = 0x0A
-
-    def __init__(self, port, debug = False):
-        self.debug = debug
-        self.port = serial.Serial(port, baudrate=19200, timeout=1.0)
     
     def build_parameters(self, light, heater, fan, force_heater, force_fan, low_min_temp):
         """
@@ -56,47 +50,9 @@ class KroneHLSTController:
         parameter_byte |= int(force_fan) << 1
         parameter_byte |= int(low_min_temp)
         return parameter_byte
-        
-    def send_command(self, address, command, parameters = None, num_response_bytes = 0):
-        if command == self.CMD_GET_STATUS:
-            control = self.CTRL_READ
-        elif command in (self.CMD_LOCK, self.CMD_UNLOCK, self.CMD_CONTROL):
-            control = self.CTRL_WRITE_SINGLE_NOACK
-        else:
-            control = 0x00 # invalid
-        
-        data = [command]
-        
-        if parameters is not None:
-            data.append(parameters)
-        
-        payload = [0x10, address, 0x00, control, 0x01] + data + [0x00]
-        length = len(payload)
-        payload[2] = length
-        
-        checksum = 0x00
-        for byte in payload:
-            checksum ^= byte
-        
-        cmd_bytes = [0xFF, 0xFF] + payload + [checksum]
-        
-        if self.debug:
-            print(" ".join((format(x, "02X") for x in cmd_bytes)))
-        
-        # Send it
-        self.port.write(bytearray(cmd_bytes))
-
-        # Read response
-        if num_response_bytes > 0:
-            return self.port.read(num_response_bytes)
-        else:
-            return None
     
     def send_heartbeat(self, address):
-        cmd_bytes = [0xFF, 0xFF, 0x10, address, 0x00]
-        if self.debug:
-            print(" ".join((format(x, "02X") for x in cmd_bytes)))
-        self.port.write(bytearray(cmd_bytes))
+        return super().send_heartbeat(self.BOARD_ID, address)
     
     def control(self, address, light, heater, fan, force_heater, force_fan, low_min_temp):
-        return self.send_command(address, self.CMD_CONTROL, self.build_parameters(light, heater, fan, force_heater, force_fan, low_min_temp))
+        return self.send_command(self.BOARD_ID, address, self.CMD_CONTROL, self.build_parameters(light, heater, fan, force_heater, force_fan, low_min_temp))
