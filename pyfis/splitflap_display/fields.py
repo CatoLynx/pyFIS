@@ -148,6 +148,17 @@ class MirrorField(BaseField):
     """
     def __init__(self, source_field, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.start_address = self.start_address or source_field.start_address
+        self.length = self.length or source_field.length
+        self.descending = self.descending or source_field.descending
+        self.text_align = self.text_align or source_field.text_align
+        self.address_mapping = self.address_mapping or source_field.address_mapping
+        self.display_mapping = self.display_mapping or source_field.display_mapping
+        self.x = self.x or source_field.x
+        self.y = self.y or source_field.y
+        self.module_width = self.module_width or source_field.module_width
+        self.module_height = self.module_height or source_field.module_height
+        self.home_pos = self.home_pos or source_field.home_pos
         if not isinstance(source_field, BaseField):
             raise ValueError("source_field must be an instance of a Field subclass")
         self.source_field = source_field
