@@ -50,7 +50,7 @@ class Krone9000FBK(Krone9000RS485Controller):
     CMD_SET_FBM_CODES_SEQ = 0x08 | FLAG_FBM_COMMAND
     CMD_SET_FBM_CODES_ADDR = 0x09 | FLAG_FBM_COMMAND
     
-    def _get_fbm_errors(self, stat):
+    def _get_fbm_status(self, stat):
         # Return human-readable error strings
         # based on FBM error bits
         if stat & 0x08:
@@ -157,7 +157,7 @@ class Krone9000FBK(Krone9000RS485Controller):
                 'home_pos': bool(stat & 0x40),
                 'reset': bool(stat & 0x20),
                 'locked': bool(stat & 0x10),
-                'errors': self._get_fbm_errors(stat & 0x0f)
+                'status': self._get_fbm_status(stat & 0x0f)
             }
         return module_statuses
     
