@@ -45,6 +45,8 @@ class OmegaRS485Controller:
         self.port.break_condition = False
 
     def send_raw_message(self, message):
+        if self.debug:
+            print(" ".join((format(x, "02X") for x in message)))
         self.init_communication()
         self.port.write(message)
 
@@ -76,6 +78,7 @@ class OmegaRS485Controller:
         # Compatibility function for SplitFlapDisplay class
         for addr, pos in module_data:
             self.set_position(addr, pos)
+            time.sleep(0.05)
 
     def d_update(self):
         # Compatibility function for SplitFlapDisplay class
