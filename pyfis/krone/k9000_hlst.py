@@ -27,6 +27,7 @@ class Krone9000HLST(Krone9000RS485Controller):
     """
     
     BOARD_ID = 0x10
+    BOARD_NAME = "HLST"
     
     CMD_GET_STATUS = 0x01
     CMD_LOCK = 0xC6
@@ -51,8 +52,5 @@ class Krone9000HLST(Krone9000RS485Controller):
         parameter_byte |= int(low_min_temp)
         return parameter_byte
     
-    def send_heartbeat(self, address):
-        return super().send_heartbeat(self.BOARD_ID, address)
-    
-    def control(self, address, light, heater, fan, force_heater, force_fan, low_min_temp):
-        return self.send_command(self.BOARD_ID, address, self.CMD_CONTROL, self.build_parameters(light, heater, fan, force_heater, force_fan, low_min_temp))
+    def control(self, light, heater, fan, force_heater, force_fan, low_min_temp):
+        return self.send_command(self.CMD_CONTROL, self.build_parameters(light, heater, fan, force_heater, force_fan, low_min_temp))

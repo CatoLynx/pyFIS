@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from .fbm import KroneFBMController
-from .hlst import KroneHLSTController
-from .k8200 import Krone8200Controller
+from .k9000_fbm import Krone9000FBM
+from .k9000_fbk import Krone9000FBK
+from .k9000_hlst import Krone9000HLST
+from .k8200 import Krone8200Display

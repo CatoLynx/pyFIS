@@ -18,3 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class CommunicationError(IOError):
     pass
+
+class NACKError(CommunicationError):
+    pass
+
+class BusyError(CommunicationError):
+    pass

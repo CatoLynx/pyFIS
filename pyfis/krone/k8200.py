@@ -21,7 +21,7 @@ import time
 from .exceptions import CommunicationError
 
 
-class Krone8200Controller:
+class Krone8200Display:
     """
     Controls split-flap displays using the Krone 8200 system.
     This can be used to control an entire Krone 8200 platform display

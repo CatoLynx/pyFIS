@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 
 
-class KroneFBMController:
+class Krone9000FBM:
     """
     Controls one or several FBM (Fallblattmodul)
     (split flap module) boards.
