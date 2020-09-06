@@ -147,20 +147,29 @@ class MirrorField(BaseField):
     This special field is set up so it mirrors an existing field.
     """
     def __init__(self, source_field, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.start_address = self.start_address or source_field.start_address
-        self.length = self.length or source_field.length
-        self.descending = self.descending or source_field.descending
-        self.text_align = self.text_align or source_field.text_align
-        self.address_mapping = self.address_mapping or source_field.address_mapping
-        self.display_mapping = self.display_mapping or source_field.display_mapping
-        self.x = self.x or source_field.x
-        self.y = self.y or source_field.y
-        self.module_width = self.module_width or source_field.module_width
-        self.module_height = self.module_height or source_field.module_height
-        self.home_pos = self.home_pos or source_field.home_pos
         if not isinstance(source_field, BaseField):
             raise ValueError("source_field must be an instance of a Field subclass")
+        if 'start_address' not in kwargs:
+            kwargs['start_address'] = source_field.start_address
+        if 'length' not in kwargs:
+            kwargs['length'] = source_field.length
+        if 'descending' not in kwargs:
+            kwargs['descending'] = source_field.descending
+        if 'text_align' not in kwargs:
+            kwargs['text_align'] = source_field.text_align
+        if 'display_mapping' not in kwargs:
+            kwargs['display_mapping'] = source_field.display_mapping
+        if 'x' not in kwargs:
+            kwargs['x'] = source_field.x
+        if 'y' not in kwargs:
+            kwargs['y'] = source_field.y
+        if 'module_width' not in kwargs:
+            kwargs['module_width'] = source_field.module_width
+        if 'module_height' not in kwargs:
+            kwargs['module_height'] = source_field.module_height
+        if 'home_pos' not in kwargs:
+            kwargs['home_pos'] = source_field.home_pos
+        super().__init__(*args, **kwargs)
         self.source_field = source_field
         source_field.add_mirror(self)
 
