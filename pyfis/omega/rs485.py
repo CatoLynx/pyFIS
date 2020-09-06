@@ -32,7 +32,10 @@ class OmegaRS485Controller:
     def prepare_message(self, address, command, value):
         message = [0xFF, command, address]
         if value is not None:
-            message.append(value)
+            if type(value) in (tuple, list):
+                message.extend(value)
+            else:
+                message.append(value)
         return message
 
     def init_communication(self):
@@ -76,9 +79,25 @@ class OmegaRS485Controller:
 
     def d_set_module_data(self, module_data):
         # Compatibility function for SplitFlapDisplay class
-        for addr, pos in module_data:
-            self.set_position(addr, pos)
-            time.sleep(0.05)
+        
+        # Turn module data into blocks of contiguous addresses
+        items = sorted(module_data, key=lambda i:i[0])
+        last_addr = None
+        start_addr = None
+        pos_block = []
+        for i, (addr, pos) in enumerate(items):
+            if (last_addr is not None and addr - last_addr > 1):
+                self.set_position(start_addr, pos_block)
+                time.sleep(0.05)
+                pos_block = []
+            if pos_block == []:
+                start_addr = addr
+            pos_block.append(pos)
+            if i == len(items) - 1:
+                self.set_position(start_addr, pos_block)
+                time.sleep(0.05)
+                pos_block = []
+            last_addr = addr
 
     def d_update(self):
         # Compatibility function for SplitFlapDisplay class
