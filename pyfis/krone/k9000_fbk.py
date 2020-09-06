@@ -20,6 +20,7 @@ import serial
 from itertools import groupby
 
 from .k9000_rs485 import Krone9000RS485Controller
+from .exceptions import CommunicationError
 
 
 class Krone9000FBK(Krone9000RS485Controller):
@@ -139,7 +140,22 @@ class Krone9000FBK(Krone9000RS485Controller):
         # table is a list of characters to be mapped to flaps,
         # starting at flap 0
         parameters = [addr] + table
-        return self.send_command(self.CMD_SET_FBM_VALUE_TABLE, parameters)
+        self.send_command(self.CMD_SET_FBM_VALUE_TABLE, parameters)
+        # Special case here: The FBK sends the number of flap codes transferred
+        # as a single byte after it has finished sending the data to the FBM.
+        # As this is the only case in which this sort of response occurs,
+        # we are just handling it manually here.
+        num_xferred = b""
+        tries = 0
+        # Try for roughly five seconds (exact value depends on the port timeout)
+        while num_xferred == b"":
+            if tries >= 5.0 / self.port.timeout:
+                raise CommunicationError("Timeout while waiting for result of FBM value table transfer")
+            num_xferred = self.port.read(1)
+            tries += 1
+        self.debug_print(bytearray(num_xferred), receive=True)
+        # Return the number of transferred flap codes
+        return ord(num_xferred)
     
     def start_fbm(self):
         return self.send_command(self.CMD_FBM_START)
