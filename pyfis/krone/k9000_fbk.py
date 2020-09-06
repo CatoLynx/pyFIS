@@ -41,6 +41,8 @@ class Krone9000FBK(Krone9000RS485Controller):
     CMD_GET_LINE_DATA = 0x03
     CMD_SET_BLINKER = 0x0B
     CMD_SET_FBM_VALUE_TABLE = 0x0E
+    CMD_LOCK_FBK = 0xC6
+    CMD_UNLOCK_FBK = 0xC7
     
     CMD_FBM_START = 0x00 | FLAG_START_IMMEDIATELY
     CMD_GET_FBM_STATUS = 0x03 | FLAG_FBM_COMMAND
@@ -156,6 +158,14 @@ class Krone9000FBK(Krone9000RS485Controller):
         self.debug_print(bytearray(num_xferred), receive=True)
         # Return the number of transferred flap codes
         return ord(num_xferred)
+    
+    def lock(self):
+        # Lock the entire FBK
+        return self.send_command(self.CMD_LOCK_FBK)
+    
+    def unlock(self):
+        # Unlock the entire FBK
+        return self.send_command(self.CMD_UNLOCK_FBK)
     
     def start_fbm(self):
         return self.send_command(self.CMD_FBM_START)

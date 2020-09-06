@@ -34,7 +34,7 @@ class Krone9000HLST(Krone9000RS485Controller):
     CMD_UNLOCK = 0xC7
     CMD_CONTROL = 0x0A
     
-    def build_parameters(self, light, heater, fan, force_heater, force_fan, low_min_temp):
+    def _build_parameters(self, light, heater, fan, force_heater, force_fan, low_min_temp):
         """
         light: 1=on, 0=off
         heater: 1=on, 0=off
@@ -52,5 +52,37 @@ class Krone9000HLST(Krone9000RS485Controller):
         parameter_byte |= int(low_min_temp)
         return parameter_byte
     
+    def get_status(self):
+        # Get the status of the FBK board
+        payload = self.send_command(self.CMD_GET_STATUS, response=True)
+        stat1 = payload[1]
+        stat2 = payload[2]
+        status = {
+            'comm_err': bool(stat1 & 0x40),
+            'reset': bool(stat1 & 0x20),
+            'locked': bool(stat1 & 0x10),
+            'light_err': bool(stat1 & 0x08),
+            'hlst_err': bool(stat1 & 0x04),
+            'force_ctrl': bool(stat1 & 0x02),
+            'low_min_temp': bool(stat1 & 0x01),
+            'light_on_set': bool(stat2 & 0x80),
+            'heater_on': bool(stat2 & 0x40),
+            'fan_on': bool(stat2 & 0x20),
+            'light_on_feedback': bool(stat2 & 0x10),
+            'temp_above_40c': bool(stat2 & 0x08),
+            'temp_above_0c': bool(stat2 & 0x04),
+            'temp_above_neg20c': bool(stat2 & 0x02),
+            'sw_ver': f"{payload[3]}.{payload[4]}"
+        }
+        return status
+    
+    def lock(self):
+        # Lock the entire HLST
+        return self.send_command(self.CMD_LOCK)
+    
+    def unlock(self):
+        # Unlock the entire HLST
+        return self.send_command(self.CMD_UNLOCK)
+    
     def control(self, light, heater, fan, force_heater, force_fan, low_min_temp):
-        return self.send_command(self.CMD_CONTROL, self.build_parameters(light, heater, fan, force_heater, force_fan, low_min_temp))
+        return self.send_command(self.CMD_CONTROL, self._build_parameters(light, heater, fan, force_heater, force_fan, low_min_temp))
