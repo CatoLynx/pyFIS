@@ -1,5 +1,5 @@
-from splitflap.display import SplitFlapDisplay, TextField, CustomMapField
-from splitflap.krone import KroneFBMController
+from pyfis.splitflap_display import SplitFlapDisplay, TextField, CustomMapField
+from pyfis.krone import Krone9000FBM
 
 MAP_TRAIN_TYPE = {
     32: "",
@@ -31,7 +31,7 @@ class ExampleDisplay(SplitFlapDisplay):
 
 
 def main():
-    controller = KroneFBMController("/dev/ttyS0")
+    controller = Krone9000FBM("/dev/ttyS0")
     display = ExampleDisplay(controller)
     display.train_type.set("ICE")
     display.train_number.set("524")
