@@ -8,18 +8,18 @@ This library currently supports the following devices:
   * IBIS devices
     * All standard telegrams as well as some manufacturer-specific variants
     * Connection via serial or TCP
-  * LAWO's MONO system
+  * LAWO's MONO system (still quite rough)
     * Support for sending bitmaps to some LED displays
     * Support for XY10 flipdot pixel control
 * Split-Flap displays
   * KRONE / MAN System 9000 "FBM" split-flap modules with ZiLOG microcontroller (in combination with the "FBUE" address board)
+  * KRONE / MAN System 9000 "FBK" split-flap group controller boards
   * KRONE / MAN System 9000 "HLST" heater and light control boards
   * KRONE System 8200 (doesn't require any modifications, can send commands to the integrated display controller)
   * OMEGA split-flap units with RS-485 data protocol
 
 Support is planned for:
 
-* KRONE / MAN System 9000 "FBK" split-flap group controller boards
 * ADtranz split-flap units with infrared absolute encoders
 * AEG MIS LCD signs using the MIS1 protocol and a Geavision Control Unit (GCU)
 
