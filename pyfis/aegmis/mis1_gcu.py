@@ -79,8 +79,7 @@ class MIS1GCUDisplay:
 
     def simple_text(self, page, row, col, text, align = ALIGN_LEFT):
         text = self.merge_attributes(text)
-        #text = text.encode("CP437")
-        text = list(map(ord, text))
+        text = text.encode("CP437")
         data = [align, page, row, col] + list(text)
         return self.send_command(0x11, 0x00, data)
 
