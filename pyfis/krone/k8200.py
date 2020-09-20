@@ -205,13 +205,16 @@ class Krone8200Display:
         """
         return self.send_command(address, side, "A")
 
-    def set_light(self, unit, state, address = 1, side = 0):
+    def set_light(self, unit, state, auto_update = True, address = 1, side = 0):
         """
         Set backlight (if supported)
         unit: unit address which controls the light
         state: 1 or 0
         """
-        return self.send_command(address, side, "Z{:02d}{:02d}".format(unit, state))
+        command = "Z{:02d}{:02d}".format(unit, state)
+        if auto_update:
+            command += "@A"
+        return self.send_command(address, side, command)
 
     def restart(self, address = 1, side = 0):
         """
