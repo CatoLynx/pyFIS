@@ -216,6 +216,18 @@ class Krone8200Display:
             command += "@A"
         return self.send_command(address, side, command)
 
+    def set_blinker(self, unit, state, auto_update = True, address = 1, side = 0):
+        """
+        Set blinker (if supported)
+        unit: unit address which controls the blinkers
+        state: 0 (lights off), 1 (light 1 on), 2 (light 2 on), 3 (both lights on)
+        Needs to be followed by a set_light command
+        """
+        command = "B{:02d}{:02d}".format(unit, state)
+        if auto_update:
+            command += "@A"
+        return self.send_command(address, side, command)
+
     def restart(self, address = 1, side = 0):
         """
         Restart the controller
