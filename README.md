@@ -12,9 +12,9 @@ This library currently supports the following devices:
     * Support for sending bitmaps to some LED displays
     * Support for XY10 flipdot pixel control
 * Split-Flap displays
-  * KRONE / MAN System 9000 "FBM" split-flap modules with ZiLOG microcontroller (in combination with the "FBUE" address board)
-  * KRONE / MAN System 9000 "FBK" split-flap group controller boards
-  * KRONE / MAN System 9000 "HLST" heater and light control boards
+  * KRONE / MAN System 9000/8200E "FBM" split-flap modules with ZiLOG microcontroller (in combination with the "FBUE" address board)
+  * KRONE / MAN System 9000/8200E "FBK" split-flap group controller boards
+  * KRONE / MAN System 9000/8200E "HLST" heater and light control boards
   * KRONE System 8200 (doesn't require any modifications, can send commands to the integrated display controller)
   * OMEGA split-flap units with RS-485 data protocol
 * Other displays
