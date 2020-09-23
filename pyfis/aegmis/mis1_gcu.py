@@ -39,9 +39,9 @@ class MIS1GCUDisplay:
     TIME_FORMAT_12H_AM_PM = 0x02
     TIME_FORMAT_12H = 0x03
     
-    def __init__(self, port, address = 1, baudrate = 9600):
+    def __init__(self, port, address = 1, baudrate = 9600, exclusive = False):
         self.address = address
-        self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1)
+        self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
 
     def checksum(self, data):
         checksum = 0x00

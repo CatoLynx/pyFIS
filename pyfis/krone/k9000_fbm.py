@@ -37,9 +37,9 @@ class Krone9000FBM:
     CMD_STOP_CALIBRATION = 0b1011
     CMD_SET_TABLE = 0b1100
 
-    def __init__(self, port, debug = False):
+    def __init__(self, port, debug = False, exclusive = False):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=1.0)
+        self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=1.0, exclusive=exclusive)
     
     def send_command(self, command, address = None, code = None, position = None, num_response_bytes = 0):
         # Build base command byte

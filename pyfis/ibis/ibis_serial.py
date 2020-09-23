@@ -25,7 +25,7 @@ class SerialIBISMaster(IBISProtocol):
     """
     
     def __init__(self, port, baudrate = 1200, bytesize = 7, parity = 'E',
-                 stopbits = 2, timeout = 2.0, *args, **kwargs):
+                 stopbits = 2, timeout = 2.0, exclusive = False, *args, **kwargs):
         """
         port:
         The serial port to use for communication
@@ -40,7 +40,8 @@ class SerialIBISMaster(IBISProtocol):
             bytesize = bytesize,
             parity = parity,
             stopbits = stopbits,
-            timeout = timeout
+            timeout = timeout,
+            exclusive=exclusive
         )
     
     def _send(self, telegram):

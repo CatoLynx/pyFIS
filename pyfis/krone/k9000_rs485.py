@@ -41,13 +41,13 @@ class Krone9000RS485Controller:
     RETRY_COUNT = 10
     RETRY_INTERVAL = 0.2
 
-    def __init__(self, port, address, timeout = 1.0, debug = False):
+    def __init__(self, port, address, timeout = 1.0, debug = False, exclusive = False):
         self.address = address
         self.debug = debug
         if isinstance(port, serial.Serial):
             self.port = port
         else:
-            self.port = serial.Serial(port, baudrate=19200, timeout=timeout)
+            self.port = serial.Serial(port, baudrate=19200, timeout=timeout, exclusive=exclusive)
     
     @staticmethod
     def _chunks(lst, n):

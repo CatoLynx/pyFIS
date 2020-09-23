@@ -25,9 +25,9 @@ class OmegaRS485Controller:
     Commonly found in Swiss (SBB CFF FFS) station displays.
     """
 
-    def __init__(self, port, debug = False):
+    def __init__(self, port, debug = False, exclusive = False):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=19200, timeout=1.0)
+        self.port = serial.Serial(port, baudrate=19200, timeout=1.0, exclusive=exclusive)
 
     def prepare_message(self, address, command, value):
         message = [0xFF, command, address]
