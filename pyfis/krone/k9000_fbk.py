@@ -107,7 +107,7 @@ class Krone9000FBK(Krone9000RS485Controller):
         return status
     
     def get_fbm_ids(self):
-        # Get a loist of all connected FBM IDs
+        # Get a list of all connected FBM IDs
         payload = self.send_command(self.CMD_GET_LINE_INIT_DATA, response=True)
         module_data = payload[1:]
         modules_present = []
@@ -117,6 +117,8 @@ class Krone9000FBK(Krone9000RS485Controller):
                 if byte & (1 << bit):
                     modules_present.append(addr)
                 addr += 1
+                if addr > 255:
+                    break
         return modules_present
     
     def get_fbm_statuses(self):
@@ -130,6 +132,8 @@ class Krone9000FBK(Krone9000RS485Controller):
             for bit in range(7):
                 module_statuses[addr] = bool(byte & (1 << bit))
                 addr += 1
+                if addr > 255:
+                    break
         return module_statuses
     
     def set_blinker(self, state):
