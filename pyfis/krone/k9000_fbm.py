@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import serial
+import time
 
 
 class Krone9000FBM:
@@ -35,11 +36,37 @@ class Krone9000FBM:
     CMD_START_CALIBRATION_BR2 = 0b1001
     CMD_START_CALIBRATION_BR1 = 0b1010
     CMD_STOP_CALIBRATION = 0b1011
-    CMD_SET_TABLE = 0b1100
+    CMD_GET_CALIBRATION_VALUES = 0b1100
+    CMD_SET_TABLE = 0b1101
+    CMD_DELETE_TABLE = 0b1110
+    
+    def _get_fbm_status(self, stat):
+        # Return human-readable error strings
+        # based on FBM error bits
+        if stat & 0x08:
+            lut = {
+                0b1000: "comm_error",
+                0b1001: "start_missing",
+                0b1010: "unknown_char",
+                0b1011: "external_rotation",
+                0b1100: "rotation_timeout",
+                0b1101: "fbm_missing",
+                0b1111: "rotating"
+            }
+            return [lut.get(stat & 0x0f, "")]
+        else:
+            errors = []
+            if stat & 0x04:
+                errors.append("no_ac")
+            if stat & 0x02:
+                errors.append("no_flap_imps")
+            if stat & 0x01:
+                errors.append("no_home_imp")
+            return errors
 
     def __init__(self, port, debug = False, exclusive = False):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=1.0, exclusive=exclusive)
+        self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=2.0, exclusive=exclusive)
     
     def send_command(self, command, address = None, code = None, position = None, num_response_bytes = 0):
         # Build base command byte
@@ -51,7 +78,7 @@ class Krone9000FBM:
             cmd_base |= 0b01000000
         
         # Code expansion bit
-        if code is not None and code > 127:
+        if code is not None and (code > 127 or (position is not None and position > 127)):
             cmd_base |= 0b00100000
         
         # Command bits
@@ -64,10 +91,11 @@ class Krone9000FBM:
         if code is not None:
             cmd_bytes.append(code & 0b01111111)
         if position is not None:
-            cmd_bytes.append(position)
+            cmd_bytes.append(position & 0b01111111)
         
         if self.debug:
             print(" ".join((format(x, "#010b") for x in cmd_bytes)))
+            print(" ".join((format(x, "02X") for x in cmd_bytes)))
         
         # Send it
         self.port.write(bytearray(cmd_bytes))
@@ -111,8 +139,14 @@ class Krone9000FBM:
     def stop_calibration(self):
         return self.send_command(self.CMD_STOP_CALIBRATION)
     
+    def get_calibration_values(self, address):
+        return self.send_command(self.CMD_GET_CALIBRATION_VALUES, address, num_response_bytes=1)
+    
     def set_table(self, address, code, position):
-        return self.send_command(self.CMD_SET_TABLE, address, code, position)
+        return self.send_command(self.CMD_SET_TABLE, address, position, code, num_response_bytes=1)
+    
+    def delete_table(self, address):
+        return self.send_command(self.CMD_DELETE_TABLE, address, num_response_bytes=1)
     
     def set_text(self, text, start_address, length = None, descending = False):
         if length is not None:
@@ -120,6 +154,9 @@ class Krone9000FBM:
         for i, char in enumerate(text):
             address = start_address - i if descending else start_address + i
             self.set_code(address, ord(char.encode('iso-8859-1')))
+    
+    def get_status(self, addr):
+        return self._get_fbm_status(self.read_status(addr)[0])
     
     def d_set_module_data(self, module_data):
         # Compatibility function for SplitFlapDisplay class
