@@ -15,12 +15,36 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import random
+import time
+
 from .ascii_graphics import AsciiGraphics
 
 class SplitFlapDisplay:
+    TRANSITION_LEFT_TO_RIGHT = 'ltr'
+    TRANSITION_RIGHT_TO_LEFT = 'rtl'
+    TRANSITION_TOP_TO_BOTTOM = 'ttb'
+    TRANSITION_BOTTOM_TO_TOP = 'btt'
+    TRANSITION_SEQUENTIAL = 'seq'
+    TRANSITION_SEQUENTIAL_REVERSE = 'seq-rev'
+    TRANSITION_RANDOM = 'rnd'
+
     def __init__(self, backend):
         self.backend = backend
         self.check_address_collisions()
+
+    def _group(self, data, key):
+        sorted_data = sorted(data, key=key)
+        prev_group = None
+        output = {}
+        for item in sorted_data:
+            group = key(item)
+            if group != prev_group:
+                prev_group = group
+                output[group] = [item]
+            else:
+                output[group].append(item)
+        return output
     
     def get_fields(self):
         fields = []
@@ -60,9 +84,75 @@ class SplitFlapDisplay:
         module_data.sort(key=lambda d:d[0])
         return module_data
     
-    def update(self):
-        self.backend.d_set_module_data(self.get_module_data())
-        self.backend.d_update()
+    def update(self, transition = None, interval = 0.1):
+        fields = self.get_fields()
+        module_data = self.get_module_data()
+
+        if transition == self.TRANSITION_LEFT_TO_RIGHT:
+            module_data_by_x = self._group(module_data, lambda i: i[2])
+            min_x = min(module_data_by_x.keys())
+            max_x = max(module_data_by_x.keys())
+            for x in range(min_x, max_x+1):
+                if x in module_data_by_x:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_x[x]])
+                    self.backend.d_update()
+                time.sleep(interval)
+        elif transition == self.TRANSITION_RIGHT_TO_LEFT:
+            module_data_by_x = self._group(module_data, lambda i: i[2])
+            min_x = min(module_data_by_x.keys())
+            max_x = max(module_data_by_x.keys())
+            for x in range(max_x, min_x-1, -1):
+                if x in module_data_by_x:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_x[x]])
+                    self.backend.d_update()
+                time.sleep(interval)
+        elif transition == self.TRANSITION_TOP_TO_BOTTOM:
+            module_data_by_y = self._group(module_data, lambda i: i[3])
+            min_y = min(module_data_by_y.keys())
+            max_y = max(module_data_by_y.keys())
+            for y in range(min_y, max_y+1):
+                if y in module_data_by_y:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_y[y]])
+                    self.backend.d_update()
+                time.sleep(interval)
+        elif transition == self.TRANSITION_BOTTOM_TO_TOP:
+            module_data_by_y = self._group(module_data, lambda i: i[3])
+            min_y = min(module_data_by_y.keys())
+            max_y = max(module_data_by_y.keys())
+            for y in range(max_y, min_y-1, -1):
+                if y in module_data_by_y:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_y[y]])
+                    self.backend.d_update()
+                time.sleep(interval)
+        elif transition == self.TRANSITION_SEQUENTIAL:
+            addrs = [md[0] for md in module_data]
+            codes = [md[1] for md in module_data]
+            min_addr = min(addrs)
+            max_addr = max(addrs)
+            for addr in range(min_addr, max_addr+1):
+                if addr in addrs:
+                    self.backend.d_set_module_data([(addr, codes[addrs.index(addr)])])
+                    self.backend.d_update()
+                time.sleep(interval)
+        elif transition == self.TRANSITION_SEQUENTIAL_REVERSE:
+            addrs = [md[0] for md in module_data]
+            codes = [md[1] for md in module_data]
+            min_addr = min(addrs)
+            max_addr = max(addrs)
+            for addr in range(max_addr, min_addr-1, -1):
+                if addr in addrs:
+                    self.backend.d_set_module_data([(addr, codes[addrs.index(addr)])])
+                    self.backend.d_update()
+                time.sleep(interval)
+        elif transition == self.TRANSITION_RANDOM:
+            random.shuffle(module_data)
+            for addr, pos, x, y in module_data:
+                self.backend.d_set_module_data([(addr, pos)])
+                self.backend.d_update()
+                time.sleep(interval)
+        else:
+            self.backend.d_set_module_data([md[:2] for md in module_data])
+            self.backend.d_update()
     
     def get_size(self):
         """

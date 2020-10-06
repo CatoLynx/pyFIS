@@ -184,7 +184,8 @@ class MirrorField(BaseField):
 
     def get_single_module_data(self, pos):
         addr, code = self.source_field.get_single_module_data(pos)
-        return self.address_mapping[pos], code
+        x = self.x + pos * self.module_width
+        return self.address_mapping[pos], code, x, self.y
 
     def get_module_data(self):
         module_data = []
@@ -238,7 +239,8 @@ class TextField(BaseField):
             code = self.inverse_display_mapping.get(char, self.home_pos)
         else:
             code = ord(char.encode('iso-8859-1'))
-        return addr, code
+        x = self.x + pos * self.module_width
+        return addr, code, x, self.y
 
 
 class CustomMapField(BaseField):
@@ -272,7 +274,8 @@ class CustomMapField(BaseField):
         addr = self.address_mapping[pos]
         display_value = self.value[pos]
         code = self.inverse_display_mapping.get(display_value, self.home_pos)
-        return addr, code
+        x = self.x + pos * self.module_width
+        return addr, code, x, self.y
     
     def get_ascii_render_parameters(self):
         parameters = super().get_ascii_render_parameters()
