@@ -183,7 +183,7 @@ class MirrorField(BaseField):
         pass
 
     def get_single_module_data(self, pos):
-        addr, code = self.source_field.get_single_module_data(pos)
+        addr, code, dummy_x, dummy_y = self.source_field.get_single_module_data(pos)
         x = self.x + pos * self.module_width
         return self.address_mapping[pos], code, x, self.y
 
