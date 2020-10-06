@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 name = "pyFIS"
-version = "1.3.1"
+version = "1.4.0"
 description = "A library for controlling devices in the passenger information realm"
 license = "GPLv3"
 author = "Julian Metzler"

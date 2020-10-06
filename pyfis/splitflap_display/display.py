@@ -25,9 +25,28 @@ class SplitFlapDisplay:
     TRANSITION_RIGHT_TO_LEFT = 'rtl'
     TRANSITION_TOP_TO_BOTTOM = 'ttb'
     TRANSITION_BOTTOM_TO_TOP = 'btt'
+    TRANSITION_MIDDLE_OUT_HORIZONTAL = 'moh'
+    TRANSITION_MIDDLE_OUT_VERTICAL = 'mov'
+    TRANSITION_MIDDLE_IN_HORIZONTAL = 'mih'
+    TRANSITION_MIDDLE_IN_VERTICAL = 'miv'
     TRANSITION_SEQUENTIAL = 'seq'
     TRANSITION_SEQUENTIAL_REVERSE = 'seq-rev'
     TRANSITION_RANDOM = 'rnd'
+    TRANSITION_RANDOM_CHOICE = 'rndc'
+    
+    TRANSITIONS = [
+        TRANSITION_LEFT_TO_RIGHT,
+        TRANSITION_RIGHT_TO_LEFT,
+        TRANSITION_TOP_TO_BOTTOM,
+        TRANSITION_BOTTOM_TO_TOP,
+        TRANSITION_MIDDLE_OUT_HORIZONTAL,
+        TRANSITION_MIDDLE_OUT_VERTICAL,
+        TRANSITION_MIDDLE_IN_HORIZONTAL,
+        TRANSITION_MIDDLE_IN_VERTICAL,
+        TRANSITION_SEQUENTIAL,
+        TRANSITION_SEQUENTIAL_REVERSE,
+        TRANSITION_RANDOM
+    ]
 
     def __init__(self, backend):
         self.backend = backend
@@ -45,6 +64,17 @@ class SplitFlapDisplay:
             else:
                 output[group].append(item)
         return output
+    
+    def _interleave(self, list1, list2):
+        newlist = []
+        a1 = len(list1)
+        a2 = len(list2)
+        for i in range(max(a1, a2)):
+            if i < a1:
+                newlist.append(list1[i])
+            if i < a2:
+                newlist.append(list2[i])
+        return newlist
     
     def get_fields(self):
         fields = []
@@ -87,6 +117,9 @@ class SplitFlapDisplay:
     def update(self, transition = None, interval = 0.1):
         fields = self.get_fields()
         module_data = self.get_module_data()
+        
+        if transition == self.TRANSITION_RANDOM_CHOICE:
+            transition = random.choice(self.TRANSITIONS)
 
         if transition == self.TRANSITION_LEFT_TO_RIGHT:
             module_data_by_x = self._group(module_data, lambda i: i[2])
@@ -124,6 +157,58 @@ class SplitFlapDisplay:
                     self.backend.d_set_module_data([md[:2] for md in module_data_by_y[y]])
                     self.backend.d_update()
                 time.sleep(interval)
+        elif transition == self.TRANSITION_MIDDLE_OUT_HORIZONTAL:
+            module_data_by_x = self._group(module_data, lambda i: i[2])
+            min_x = min(module_data_by_x.keys())
+            max_x = max(module_data_by_x.keys())
+            mid_x = min_x + (max_x - min_x) // 2
+            pair_complete = True
+            for x in self._interleave(range(mid_x, min_x-1, -1), range(mid_x+1, max_x+1)):
+                if x in module_data_by_x:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_x[x]])
+                    self.backend.d_update()
+                pair_complete = not pair_complete
+                if pair_complete:
+                    time.sleep(interval)
+        elif transition == self.TRANSITION_MIDDLE_IN_HORIZONTAL:
+            module_data_by_x = self._group(module_data, lambda i: i[2])
+            min_x = min(module_data_by_x.keys())
+            max_x = max(module_data_by_x.keys())
+            mid_x = min_x + (max_x - min_x) // 2
+            pair_complete = True
+            for x in self._interleave(range(mid_x, min_x-1, -1), range(mid_x+1, max_x+1))[::-1]:
+                if x in module_data_by_x:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_x[x]])
+                    self.backend.d_update()
+                pair_complete = not pair_complete
+                if pair_complete:
+                    time.sleep(interval)
+        elif transition == self.TRANSITION_MIDDLE_OUT_VERTICAL:
+            module_data_by_y = self._group(module_data, lambda i: i[3])
+            min_y = min(module_data_by_y.keys())
+            max_y = max(module_data_by_y.keys())
+            mid_y = min_y + (max_y - min_y) // 2
+            pair_complete = True
+            for y in self._interleave(range(mid_y, min_y-1, -1), range(mid_y+1, max_y+1)):
+                if y in module_data_by_y:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_y[y]])
+                    self.backend.d_update()
+                pair_complete = not pair_complete
+                if pair_complete:
+                    time.sleep(interval)
+        elif transition == self.TRANSITION_MIDDLE_IN_VERTICAL:
+            module_data_by_y = self._group(module_data, lambda i: i[3])
+            min_y = min(module_data_by_y.keys())
+            max_y = max(module_data_by_y.keys())
+            mid_y = min_y + (max_y - min_y) // 2
+            pair_complete = True
+            for y in self._interleave(range(mid_y, min_y-1, -1), range(mid_y+1, max_y+1))[::-1]:
+                if y in module_data_by_y:
+                    self.backend.d_set_module_data([md[:2] for md in module_data_by_y[y]])
+                    self.backend.d_update()
+                pair_complete = not pair_complete
+                if pair_complete:
+                    time.sleep(interval)
         elif transition == self.TRANSITION_SEQUENTIAL:
             addrs = [md[0] for md in module_data]
             codes = [md[1] for md in module_data]
