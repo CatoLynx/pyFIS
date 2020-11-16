@@ -19,6 +19,7 @@ This library currently supports the following devices:
   * OMEGA split-flap units with RS-485 data protocol
 * Other displays
   * AEG MIS LCD signs using the MIS1 protocol and a Geavision Control Unit (GCU)
+  * microSYST migra industrial LED signs using TCP/IP
 
 Support is planned for:
 
