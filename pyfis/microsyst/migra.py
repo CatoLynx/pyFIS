@@ -28,7 +28,7 @@ class MigraTCP:
     COLOR_GREEN = "1"
     COLOR_RED = "2"
     COLOR_YELLOW = "3"
-    COLOR_TRANSPARENT = "4"
+    COLOR_TRANSPARENT = "T"
     COLOR_NAMES = {
         COLOR_BLACK: ["black", "off"],
         COLOR_GREEN: ["green"],
