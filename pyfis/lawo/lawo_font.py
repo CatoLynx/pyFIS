@@ -54,7 +54,7 @@ class LawoFont:
             if byte == 0x00:
                 return result
             else:
-                result += chr(byte)
+                result += bytes([byte]).decode('cp1252')
         return result
     
     @staticmethod
@@ -64,7 +64,7 @@ class LawoFont:
             if byte == 0x00 and i < len(data) - 1 and data[i+1] == 0x00:
                 return result
             else:
-                result += chr(byte)
+                result += bytes([byte]).decode('cp1252')
         return result
     
     @staticmethod
@@ -139,8 +139,8 @@ class LawoFont:
                          f"Glyph Spacing:     {self.char_spacing} px",
                          f"Widest Glyph:      {self.widest_glyph} px",
                          f"Narrowest Glyph:   {self.narrowest_glyph} px",
-                         f"Lowest Character:  {self.min_char} ({chr(self.min_char)})",
-                         f"Highest Character: {self.max_char} ({chr(self.max_char)})",
+                         f"Lowest Character:  {self.min_char} ({bytes([self.min_char]).decode('cp1252')})",
+                         f"Highest Character: {self.max_char} ({bytes([self.max_char]).decode('cp1252')})",
                          f"Preview Text:      {self.preview_text}",
                          f"# Glyphs:          {self.num_glyphs}",
                          f"# Data Blocks:     {self.num_blocks}",
