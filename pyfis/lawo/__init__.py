@@ -1,5 +1,5 @@
 """
-Copyright (C) 2016 - 2020 Julian Metzler
+Copyright (C) 2016 - 2021 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,3 +16,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from .mono_serial import SerialMONOMaster
+from .lawo_font import LawoFont
