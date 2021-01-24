@@ -20,6 +20,8 @@ This library currently supports the following devices:
 * Other displays
   * AEG MIS LCD signs using the MIS1 protocol and a Geavision Control Unit (GCU)
   * microSYST migra industrial LED signs using TCP/IP
+* Other features
+  * Support for reading LAWO's font file format
 
 Support is planned for:
 
