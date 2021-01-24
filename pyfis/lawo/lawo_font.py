@@ -29,7 +29,23 @@ class LawoFont:
     """
     
     def __init__(self):
-        self.info = {}
+        self.name = None
+        self.change_signature = None
+        self.file_size = None
+        self.file_name = None
+        self.glyph_h = None
+        self.baseline = None
+        self.min_char = None
+        self.max_char = None
+        self.char_spacing = None
+        self.preview_text = None
+        self.num_blocks = None
+        self.glyph_metadata = None
+        self.glyph_data = None
+        self.num_glyphs = None
+        self.widest_glyph = None
+        self.narrowest_glyph = None
+        self.charset = None
     
     @staticmethod
     def _read_c_str(data):
@@ -60,57 +76,88 @@ class LawoFont:
         with open(file, 'rb') as f:
             data = f.read()
         
-        self.info['font_name'] = self._read_c_str(data[6:14]).strip()
-        self.info['change_signature'] = data[16] << 8 | data[7] # Changes with every file change
-        self.info['file_size'] = data[20] << 8 | data[21]
-        self.info['file_name'] = self._read_c_str(data[32:45])
-        self.info['glyph_h'] = data[45]
-        self.info['baseline'] = data[46]
-        self.info['min_char'] = data[47]
-        self.info['max_char'] = data[48]
-        self.info['char_spacing'] = data[52]
-        self.info['preview_text'] = self._read_c_str(data[56:60])
-        self.info['num_blocks'] = data[60] << 8 | data[61] # A block is a column of bytes with a length equal to the glyph height
-        self.info['glyph_metadata'] = dict(zip(range(data[47], data[48]+1), [None]*(data[48]-data[47]+1)))
-        self.info['glyph_data'] = dict(zip(range(data[47], data[48]+1), [None]*(data[48]-data[47]+1)))
+        self.name = self._read_c_str(data[6:14]).strip()
+        self.change_signature = data[16] << 8 | data[7] # Changes with every file change
+        self.file_size = data[20] << 8 | data[21]
+        self.file_name = self._read_c_str(data[32:45])
+        self.glyph_h = data[45]
+        self.baseline = data[46]
+        self.min_char = data[47]
+        self.max_char = data[48]
+        self.char_spacing = data[52]
+        self.preview_text = self._read_c_str(data[56:60])
+        self.num_blocks = data[60] << 8 | data[61] # A block is a column of bytes with a length equal to the glyph height
+        self.glyph_metadata = dict(zip(range(self.min_char, self.max_char+1), [None]*(self.max_char-self.min_char+1)))
+        self.glyph_data = dict(zip(range(self.min_char, self.max_char+1), [None]*(self.max_char-self.min_char+1)))
         
-        extra_data_start = 70 + 3 * (data[48] - data[47] + 1)
+        extra_data_start = 70 + 3 * (self.max_char - self.min_char + 1)
         if data[extra_data_start] == 0x00:
             # There is no extra data block, just skip the two 0x00 bytes
             glyph_data_block_start = extra_data_start + 2
         else:
             # There is an extra data block
             # Read it and skip the null terminator and the two 0x00 bytes
-            self.info['extra_data'] = self._read_until_double_null(data[extra_data_start:])
-            glyph_data_block_start = extra_data_start + len(self.info['extra_data']) + 3
-        self.info['glyph_data_block_start'] = glyph_data_block_start
+            self.extra_data = self._read_until_double_null(data[extra_data_start:])
+            glyph_data_block_start = extra_data_start + len(self.extra_data) + 3
         
-        for c in range(data[47], data[48]+1):
-            i = 70 + 3 * (c - data[47])
-            self.info['glyph_metadata'][c] = {
+        self.num_glyphs = 0
+        self.widest_glyph = 0
+        self.narrowest_glyph = 255
+        self.charset = ""
+        for c in range(self.min_char, self.max_char+1):
+            i = 70 + 3 * (c - self.min_char)
+            self.glyph_metadata[c] = {
                 'glyph_w': data[i],
                 'offset': data[i+1] << 8 | data[i+2] # Offset from start of glyph data block in bits
             }
+            if data[i] > 0:
+                self.num_glyphs += 1
+                self.charset += chr(c)
+                if data[i] > self.widest_glyph:
+                    self.widest_glyph = data[i]
+                if data[i] < self.narrowest_glyph:
+                    self.narrowest_glyph = data[i]
         
-        for c in range(data[47], data[48]+1):
-            width = self.info['glyph_metadata'][c]['glyph_w']
-            glyph_start = glyph_data_block_start + self.info['glyph_metadata'][c]['offset'] // 8
+        for c in range(self.min_char, self.max_char+1):
+            width = self.glyph_metadata[c]['glyph_w']
+            glyph_start = glyph_data_block_start + self.glyph_metadata[c]['offset'] // 8
             i = glyph_start
             glyph_data = []
-            for y in range(self.info['glyph_h']):
+            for y in range(self.glyph_h):
                 for x_byte in range(math.ceil(width / 8)):
                     glyph_data.append(data[i + x_byte])
-                i += self.info['num_blocks']
-            self.info['glyph_data'][c] = glyph_data
+                i += self.num_blocks
+            self.glyph_data[c] = glyph_data
     
     def print_info(self):
-        pprint(self.info)
+        print("\n".join([f"Name:              {self.name}",
+                         f"File Name:         {self.file_name}",
+                         f"File Size:         {self.file_size} Bytes",
+                         f"Change Sig:        {self.change_signature}",
+                         f"Glyph Height:      {self.glyph_h} px",
+                         f"Glyph Baseline:    {self.baseline} px",
+                         f"Glyph Spacing:     {self.char_spacing} px",
+                         f"Widest Glyph:      {self.widest_glyph} px",
+                         f"Narrowest Glyph:   {self.narrowest_glyph} px",
+                         f"Lowest Character:  {self.min_char} ({chr(self.min_char)})",
+                         f"Highest Character: {self.max_char} ({chr(self.max_char)})",
+                         f"Preview Text:      {self.preview_text}",
+                         f"# Glyphs:          {self.num_glyphs}",
+                         f"# Data Blocks:     {self.num_blocks}",
+                         f"Character Set:     {self.charset}"]))
+    
+    def get_glyph_width(self, code):
+        if code not in self.glyph_metadata:
+            return 0
+        return self.glyph_metadata[code]['glyph_w']
     
     def render_glyph(self, code):
-        glyph_metadata = self.info['glyph_metadata'][code]
-        glyph_data = self.info['glyph_data'][code]
+        if code not in self.glyph_metadata:
+            return None
+        glyph_metadata = self.glyph_metadata[code]
+        glyph_data = self.glyph_data[code]
         width = glyph_metadata['glyph_w']
-        height = self.info['glyph_h']
+        height = self.glyph_h
         if width == 0:
             return None
         img = Image.new('L', (width, height), 0)
@@ -127,37 +174,91 @@ class LawoFont:
                 i += 1
         return img
     
-    def render_glyph_table(self):
-        num_chars = self.info['max_char'] - self.info['min_char'] + 1
-        x_spacing = 5
-        x_offset = 50
-        y_spacing = 5
-        row_min_height = 20
-        width = max(map(lambda e: e['glyph_w'], self.info['glyph_metadata'].values())) + x_offset + x_spacing
-        row_h = max(row_min_height, self.info['glyph_h'])
-        height = row_h * num_chars + y_spacing * (num_chars - 1)
+    def render_glyph_table(self, x_spacing=5, x_offset=25, y_spacing=5, row_min_height=12, num_cols=16):
+        num_chars = self.max_char - self.min_char + 1
+        
+        # Calculate the displayed table range based on the font's character range
+        # This new range is sure to leave no half filled rows
+        table_range_min = self.min_char - (self.min_char % num_cols)
+        table_range_max = self.max_char - (self.max_char % num_cols) + num_cols - 1
+        
+        row_list = range(table_range_min, table_range_max + 1, num_cols)
+        num_rows = len(row_list)
+        row_height = max(row_min_height, self.glyph_h) + y_spacing
+        
+        # Calculate widths of each column based on maximum glyph width in that column
+        # taking into account spacings
+        col_widths = {}
+        for row, char_code_base in enumerate(row_list):
+            for col in range(num_cols):
+                char_code = char_code_base + col
+                if char_code < 0 or char_code > 255:
+                    continue
+                if col not in col_widths or self.glyph_metadata.get(char_code, {'glyph_w': 0})['glyph_w'] + x_spacing + x_offset > col_widths[col]:
+                    col_widths[col] = self.glyph_metadata[char_code]['glyph_w'] + x_spacing + x_offset
+        
+        # Calculate X start positions of each column
+        x_tmp = 0
+        col_offsets = {}
+        for col, width in sorted(col_widths.items(), key=lambda i: i[0]):
+            col_offsets[col] = x_tmp
+            x_tmp += width
+        
+        # Calculate total glyph table dimensions
+        width = sum(col_widths.values())
+        height = num_rows * row_height
+        
+        # Create image
         table = Image.new('L', (width, height), 0)
         draw = ImageDraw.Draw(table)
         font = ImageFont.truetype("arial.ttf", row_min_height)
-        draw.line((x_offset - math.ceil(x_spacing / 2), 0, x_offset - math.ceil(x_spacing / 2), height - 1), 255, 1)
-        for i, c in enumerate(range(self.info['min_char'], self.info['max_char'] + 1)):
-            glyph = self.render_glyph(c)
-            y = i * (row_h + y_spacing)
-            draw.text((0, y), str(c), 255, font)
-            if glyph:
-                table.paste(glyph, (x_offset, y))
-            if c < self.info['max_char']:
-                draw.line((0, y + row_h + y_spacing // 2, width - 1, y + row_h + y_spacing // 2), 255, 1)
+        
+        # Render grid, skipping the first row / column
+        for row, char_code_base in list(enumerate(row_list))[1:]:
+            y = row * row_height
+            draw.line((0, y, width - 1, y), 255, 1)
+        
+        for col in range(1, num_cols):
+            x = col_offsets[col]
+            draw.line((x, 0, x, height - 1), 255, 1)
+        
+        # Render glyphs
+        for row, char_code_base in enumerate(row_list):
+            for col in range(num_cols):
+                char_code = char_code_base + col
+                x_base = col_offsets[col]
+                y_base = row * row_height
+                draw.text((x_base + 3, y_base), str(char_code), 255, font)
+                glyph = self.render_glyph(char_code)
+                if glyph:
+                    table.paste(glyph, (x_base + x_offset + math.ceil(x_spacing / 2), y_base + math.ceil(y_spacing / 2)))
+        
         return table
+    
+    def render_text(self, text):
+        chars = bytes(text, 'cp1252', 'ignore')
+        width = 0
+        for code in chars:
+            width += self.get_glyph_width(code) + self.char_spacing
+        width -= self.char_spacing
+        
+        img = Image.new('L', (width, self.glyph_h), 0)
+        x = 0
+        for code in chars:
+            glyph = self.render_glyph(code)
+            img.paste(glyph, (x, 0))
+            x += self.get_glyph_width(code) + self.char_spacing
+        return img
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", type=str, required=True)
-    parser.add_argument("-i", "--info", action='store_true')
-    parser.add_argument("-sg", "--show-glyph", type=int, required=False)
-    parser.add_argument("-gt", "--glyph-table", action='store_true')
-    parser.add_argument("-o", "--output", type=str, required=False)
+    parser = argparse.ArgumentParser("Tool for using LAWO font files")
+    parser.add_argument("-f", "--file", type=str, required=True, help="Font file")
+    parser.add_argument("-i", "--info", action='store_true', help="Show font info")
+    parser.add_argument("-sg", "--show-glyph", type=int, required=False, help="Show glyph with given code")
+    parser.add_argument("-gt", "--glyph-table", action='store_true', help="Show glyph table")
+    parser.add_argument("-rt", "--render-text", type=str, required=False, help="Render given text")
+    parser.add_argument("-o", "--output", type=str, required=False, help="Save output images to file instead of showing")
     args = parser.parse_args()
     
     font = LawoFont()
@@ -166,7 +267,13 @@ if __name__ == "__main__":
     if args.info:
         font.print_info()
     
-    if args.glyph_table:
+    if args.render_text is not None:
+        img = font.render_text(args.render_text)
+        if args.output:
+            img.save(args.output)
+        else:
+            img.show()
+    elif args.glyph_table:
         img = font.render_glyph_table()
         if args.output:
             img.save(args.output)
