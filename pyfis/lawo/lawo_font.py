@@ -112,7 +112,7 @@ class LawoFont:
             }
             if data[i] > 0:
                 self.num_glyphs += 1
-                self.charset += chr(c)
+                self.charset += bytes([c]).decode('cp1252')
                 if data[i] > self.widest_glyph:
                     self.widest_glyph = data[i]
                 if data[i] < self.narrowest_glyph:
