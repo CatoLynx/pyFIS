@@ -93,7 +93,7 @@ class xatLabsSplitFlapController:
         positions: dict of format {address: position}
         """
         pos_map = [item for k in positions for item in (k, positions[k])]
-        return self.send_command(self.ACT_SET_ADDR, pos_map)
+        return self.send_command_with_response(self.ACT_SET_ADDR, pos_map)
 
     def update(self):
         """
