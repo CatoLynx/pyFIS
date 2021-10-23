@@ -20,6 +20,8 @@ This library currently supports the following devices:
 * Other displays
   * AEG MIS LCD signs using the MIS1 protocol and a Geavision Control Unit (GCU)
   * microSYST migra industrial LED signs using TCP/IP
+  * My own very basic and generic split-flap interface protocol (you can use this to interface with any split-flap type display)
+  * My own protocol for controlling a single-line scrolling RGB text display
 * Other features
   * Support for reading LAWO's font file format
 
