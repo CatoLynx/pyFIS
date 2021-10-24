@@ -99,7 +99,9 @@ class xatLabsRGBDSAController:
         """
         Read the response
         """
-        response = self.port.read(1)
+        response = [self.SYNC]
+        while response and response[0] == self.SYNC:
+            response = self.port.read(1)
         if not response:
             raise CommunicationError("Timeout (no response)")
         if self.debug:
@@ -155,7 +157,7 @@ class xatLabsRGBDSAController:
         payload = []
 
         if type(text) in (list, tuple):
-            _text = "".join(d['text'] for d in text)
+            _text = "".join(d['text'] for d in text).encode("CP437")
             _segments = []
             pos = 0
             for i, t in enumerate(text):
@@ -178,11 +180,11 @@ class xatLabsRGBDSAController:
                     _segments.append(seg)
                 pos += len(t['text'])
         else:
-            _text = str(text)
+            _text = str(text).encode("CP437")
             _segments = []
 
         payload.extend([slot, len(text) >> 8, len(_text) & 0xFF, attrs, duration >> 8, duration & 0xFF])
-        payload.extend(map(ord, _text))
+        payload.extend(_text)
         payload.extend([len(_segments)])
         for seg in _segments:
             payload.extend([0x01, 0x07, seg['start'] >> 8, seg['start'] & 0xFF, seg['end'] >> 8, seg['end'] & 0xFF, seg['red'], seg['green'], seg['blue']])
