@@ -53,9 +53,16 @@ class xatLabsRGBDSAController:
 
     SCROLL       = 0b00000001
 
-    def __init__(self, port, debug = False, exclusive = True):
+    def __init__(self, port, debug = False, exclusive = True, no_dtr = False):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=115200, timeout=2.0, exclusive=exclusive)
+        self.port = serial.Serial()
+        self.port.port = port
+        self.port.baudrate = 115200
+        self.port.timeout = 2.0
+        self.port.exclusive = exclusive
+        if no_dtr:
+            self.port.setDTR(False)
+        self.port.open()
 
     def debug_message(self, message):
         """
