@@ -87,12 +87,16 @@ class MIS2GCUDisplay:
         return self.send_command(0x23, 0x00, [page, line])
     
     def set_pages(self, pages):
-        flat_pages = [item for sublist in pages for item in sublist]
-        data = flat_pages
+        # pages: List of tuples in the form
+        # (page, duration) - duration in seconds, 0.5s resolution
+        data = []
+        for page, duration in pages:
+            data.append(page)
+            data.append(round(duration * 2))
         return self.send_command(0x24, 0x00, data)
     
     def set_page(self, page):
-        return self.set_pages([(page, 0xFE)])
+        return self.set_pages([(page, 10)])
 
     def copy_page(self, src_page, dest_page):
         return self.send_command(0x26, 0x00, [src_page, dest_page])
