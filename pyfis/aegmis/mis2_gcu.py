@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020 Julian Metzler
+Copyright (C) 2021 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,25 +21,14 @@ import time
 from ..utils import debug_hex
 
 
-class MIS1GCUDisplay:
+class MIS2GCUDisplay:
     ALIGN_LEFT = 0x00
     ALIGN_RIGHT = 0x01
     ALIGN_CENTER = 0x02
-    ALIGN_SCROLL = 0x03 # apparently not supported
     
     ATTR_BLINK = 0x01
-    ATTR_INVERT = 0x02
+    ATTR_INVERT = 0x10
     ATTR_BLINK_INV = 0x08
-    
-    DATE_FORMAT_DISABLE = 0x00
-    DATE_FORMAT_DDMMYY = 0x01
-    DATE_FORMAT_MMDDYY = 0x02
-    DATE_FORMAT_YYMMDD = 0x03
-    
-    TIME_FORMAT_DISABLE = 0x00
-    TIME_FORMAT_24H = 0x01
-    TIME_FORMAT_12H_AM_PM = 0x02
-    TIME_FORMAT_12H = 0x03
     
     def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False):
         self.address = address
@@ -49,13 +38,13 @@ class MIS1GCUDisplay:
     def checksum(self, data):
         checksum = 0x00
         for i, byte in enumerate(data):
-            checksum += byte
+            checksum += byte + 1 # +1 per byte because the data length needs to be added to the checksum
         return (checksum % 256) | 0x80
 
     def escape(self, data):
         escaped = []
         for byte in data:
-            if byte in (0x02, 0x03, 0x04, 0x05, 0x10):
+            if byte in (0x02, 0x03, 0x04, 0x05, 0x10, 0x17):
                 escaped += [0x10, byte]
             else:
                 escaped.append(byte)
@@ -81,43 +70,44 @@ class MIS1GCUDisplay:
             return merged
         return text
 
-    def simple_text(self, page, row, col, text, align = ALIGN_LEFT):
-        text = self.merge_attributes(text)
-        text = text.encode("CP437")
-        data = [align, page, row, col] + list(text)
-        return self.send_command(0x11, 0x00, data)
+    def set_timeout(self, timeout):
+        # Timeout in seconds, resolution 0.5s, range 0 ... 32767
+        timeout = round(timeout * 2)
+        return self.send_command(0x01, 0x00, [timeout >> 8, timeout & 0xFF])
 
-    def text(self, page, row, col_start, col_end, text, align = ALIGN_LEFT):
+    def text(self, page, row, col_start, col_end, text, attrs = ALIGN_LEFT):
+        # Page 0xFF is the fallback page and will be saved permanently
+        # Page 0xFE copies the page to all 10 slots
         text = self.merge_attributes(text)
         text = text.encode("CP437")
-        data = [align, page, row, col_start >> 8, col_start & 0xFF, col_end >> 8, col_end & 0xFF] + list(text)
+        data = [page, row, col_start >> 8, col_start & 0xFF, col_end >> 8, col_end & 0xFF, attrs] + list(text)
         return self.send_command(0x15, 0x00, data)
+
+    def delete_line(self, page, line):
+        return self.send_command(0x23, 0x00, [page, line])
     
     def set_pages(self, pages):
         flat_pages = [item for sublist in pages for item in sublist]
-        data = [0x00] + flat_pages
+        data = flat_pages
         return self.send_command(0x24, 0x00, data)
     
     def set_page(self, page):
-        return self.set_pages([(page, 255)])
-    
-    def set_clock(self, year, month, day, hour, minute, second):
-        # apparently unsupported
-        data = list(divmod(second, 10)[::-1])
-        data += divmod(minute, 10)[::-1]
-        data += divmod(hour, 10)[::-1]
-        data += divmod(day, 10)[::-1]
-        data += divmod(month, 10)[::-1]
-        data += divmod(year, 10)[::-1]
-        data += [0x00] # weekday, unused
-        return self.send_command(0x3A, 0x00, data)
-    
-    def set_clock_display(self, date_format, date_row, date_col_start, date_col_end, time_format, time_row, time_col_start, time_col_end):
-        # apparently unsupported
-        data = [date_format, date_row]
-        data += [date_col_start >> 8, date_col_start & 0xFF]
-        data += [date_col_end >> 8, date_col_end & 0xFF]
-        data += [time_format, time_row]
-        data += [time_col_start >> 8, time_col_start & 0xFF]
-        data += [time_col_end >> 8, time_col_end & 0xFF]
-        return self.send_command(0x3D, 0x00, data)
+        return self.set_pages([(page, 0xFE)])
+
+    def copy_page(self, src_page, dest_page):
+        return self.send_command(0x26, 0x00, [src_page, dest_page])
+
+    def delete_page(self, page):
+        return self.send_command(0x2F, 0x00, [page])
+
+    def reset(self):
+        return self.send_command(0x31, 0x00, [])
+
+    def set_test_mode(self, state):
+        return self.send_command(0x32, 0x00, [1 if state else 0])
+
+    def sync(self):
+        return self.send_command(0x34, 0x00, [])
+
+    def set_outputs(self, state):
+        return self.send_command(0x41, 0x00, [state])
