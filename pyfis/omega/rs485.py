@@ -27,7 +27,10 @@ class OmegaRS485Controller:
 
     def __init__(self, port, debug = False, exclusive = False):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=19200, timeout=1.0, exclusive=exclusive)
+        if isinstance(port, serial.Serial):
+            self.port = port
+        else:
+            self.port = serial.Serial(port, baudrate=19200, timeout=1.0, exclusive=exclusive)
 
     def prepare_message(self, address, command, value):
         message = [0xFF, command, address]

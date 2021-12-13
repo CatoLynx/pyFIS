@@ -55,14 +55,17 @@ class xatLabsRGBDSAController:
 
     def __init__(self, port, debug = False, exclusive = True, no_dtr = False):
         self.debug = debug
-        self.port = serial.Serial()
-        self.port.port = port
-        self.port.baudrate = 115200
-        self.port.timeout = 2.0
-        self.port.exclusive = exclusive
-        if no_dtr:
-            self.port.setDTR(False)
-        self.port.open()
+        if isinstance(port, serial.Serial):
+            self.port = port
+        else:
+            self.port = serial.Serial()
+            self.port.port = port
+            self.port.baudrate = 115200
+            self.port.timeout = 2.0
+            self.port.exclusive = exclusive
+            if no_dtr:
+                self.port.setDTR(False)
+            self.port.open()
 
     def debug_message(self, message):
         """

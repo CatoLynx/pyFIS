@@ -33,7 +33,10 @@ class MIS2GCUDisplay:
     def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False):
         self.address = address
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
+        if isinstance(port, serial.Serial):
+            self.port = port
+        else:
+            self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
 
     def checksum(self, data):
         checksum = 0x00

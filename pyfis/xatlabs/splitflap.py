@@ -36,7 +36,10 @@ class xatLabsSplitFlapController:
 
     def __init__(self, port, debug = False, exclusive = True):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=115200, timeout=2.0, exclusive=exclusive)
+        if isinstance(port, serial.Serial):
+            self.port = port
+        else:
+            self.port = serial.Serial(port, baudrate=115200, timeout=2.0, exclusive=exclusive)
 
     def debug_message(self, message):
         """

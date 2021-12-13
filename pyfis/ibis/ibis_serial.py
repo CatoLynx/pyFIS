@@ -33,16 +33,20 @@ class SerialIBISMaster(IBISProtocol):
         
         super().__init__(*args, **kwargs)
         
-        self.port = port
-        self.device = serial.Serial(
-            self.port,
-            baudrate = baudrate,
-            bytesize = bytesize,
-            parity = parity,
-            stopbits = stopbits,
-            timeout = timeout,
-            exclusive=exclusive
-        )
+        if isinstance(port, serial.Serial):
+            self.device = port
+            self.port = self.device.port
+        else:
+            self.port = port
+            self.device = serial.Serial(
+                self.port,
+                baudrate = baudrate,
+                bytesize = bytesize,
+                parity = parity,
+                stopbits = stopbits,
+                timeout = timeout,
+                exclusive=exclusive
+            )
     
     def _send(self, telegram):
         """

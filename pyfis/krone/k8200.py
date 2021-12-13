@@ -57,7 +57,10 @@ class Krone8200Display:
 
     def __init__(self, port, address, debug = False, exclusive = False):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=2400, timeout=1.0, exclusive=exclusive)
+        if isinstance(port, serial.Serial):
+            self.port = port
+        else:
+            self.port = serial.Serial(port, baudrate=2400, timeout=1.0, exclusive=exclusive)
         # To enable receiving responses (DTR coupled to Rx via optocoupler)
         self.port.setDTR(1)
         # Set Rx address

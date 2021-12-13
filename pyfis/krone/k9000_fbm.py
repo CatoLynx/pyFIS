@@ -66,7 +66,10 @@ class Krone9000FBM:
 
     def __init__(self, port, debug = False, exclusive = False):
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=2.0, exclusive=exclusive)
+        if isinstance(port, serial.Serial):
+            self.port = port
+        else:
+            self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=2.0, exclusive=exclusive)
     
     def send_command(self, command, address = None, code = None, position = None, num_response_bytes = 0):
         # Build base command byte

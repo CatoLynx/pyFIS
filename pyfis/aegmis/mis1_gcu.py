@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020 Julian Metzler
+Copyright (C) 2020-2021 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,10 @@ class MIS1GCUDisplay:
     def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False):
         self.address = address
         self.debug = debug
-        self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
+        if isinstance(port, serial.Serial):
+            self.port = port
+        else:
+            self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
 
     def checksum(self, data):
         checksum = 0x00
