@@ -116,5 +116,10 @@ class MIS2GCUDisplay:
     def sync(self):
         return self.send_command(0x34, 0x00, [])
 
-    def set_outputs(self, state):
-        return self.send_command(0x41, 0x00, [state])
+    def set_outputs(self, states):
+        # states: array of 8 bools representing outputs 0 through 7
+        state_byte = 0x00
+        for i in range(max(8, len(states))):
+            if states[i]:
+                state_byte |= (1 << i)
+        return self.send_command(0x41, 0x00, [state_byte])
