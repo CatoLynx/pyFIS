@@ -124,3 +124,11 @@ class MIS1GCUDisplay:
         data += [time_col_start >> 8, time_col_start & 0xFF]
         data += [time_col_end >> 8, time_col_end & 0xFF]
         return self.send_command(0x3D, 0x00, data)
+    
+    def set_outputs(self, states):
+        # states: array of 8 bools representing outputs 0 through 7
+        state_byte = 0x00
+        for i in range(max(8, len(states))):
+            if states[i]:
+                state_byte |= (1 << i)
+        return self.send_command(0x41, 0x00, [0x00, 0x00, state_byte])
