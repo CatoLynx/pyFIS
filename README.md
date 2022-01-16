@@ -18,16 +18,14 @@ This library currently supports the following devices:
   * KRONE System 8200 (doesn't require any modifications, can send commands to the integrated display controller)
   * OMEGA split-flap units with RS-485 data protocol
 * Other displays
-  * AEG MIS LCD signs using the MIS1 or MIS2 protocols with a Geavision Control Unit (GCU)
+  * AEG MIS LCD signs:
+    * Character-based displays with a Geavision Control Unit (GCU) using the MIS1 or MIS2 protocols
+    * Graphical displays using the ECS protocol
   * microSYST migra industrial LED signs using TCP/IP
   * My own very basic and generic split-flap interface protocol (you can use this to interface with any split-flap type display)
   * My own protocol for controlling a single-line scrolling RGB text display
 * Other features
   * Support for reading LAWO's font file format
-
-Support is planned for:
-
-* ADtranz split-flap units with infrared absolute encoders
 
 # The `SplitFlapDisplay` class
 The `SplitFlapDisplay` class is an abstraction level you can use to represent a display made up of multiple split-flap modules. It functions as a wrapper for the various display controller classes. Using this class, you can create various fields such as a `TextField`, which represents of one or more alphanumerical split-flap modules, or a `CustomMapField`, which represents split-flap modules with texts or symbols printed on the flaps. Of course, the mapping of position code to displayed value can be set according to the modules you have.
