@@ -18,6 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import itertools
 
 
+def _debug_print(debug, *args, **kwargs):
+    if debug:
+        print(*args, **kwargs)
+
 def debug_hex(message, readable_ascii = False, readable_ctrl = False):
     """
     Turn a message into a readable form
@@ -74,7 +78,7 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
             if vias_in_route(route, entry['stations']):
                 group_candidates.append(pos)
         via_candidates.append(group_candidates)
-    #print(via_candidates)
+    _debug_print(debug, via_candidates)
     
     # Check all combinations to see if the order makes sense
     combinations = itertools.product(*via_candidates)
@@ -84,7 +88,7 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
         for group, pos in enumerate(combination):
             stations.extend(via_groups[group][pos]['stations'])
         if vias_in_route(route, stations):
-            #print(combination, stations)
+            _debug_print(debug, combination, stations)
             valid_combinations.append(combination)
     
     # If check_dashes is True, check if the starts and endings are compatible,
@@ -98,13 +102,13 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
             for group, pos in enumerate(combination):
                 text = via_groups[group][pos]['text'].strip()
                 if group > 0:
-                    if prev_text.endswith("-") == text.startswith("-"):
-                        #print("NO:", prev_text, text)
+                    if prev_text and text and prev_text.endswith("-") == text.startswith("-"):
+                        _debug_print(debug, "NO:", prev_text, text)
                         valid = False
                         break
                 prev_text = text
             if valid:
-                #print(combination)
+                _debug_print(debug, combination)
                 valid_dash_combinations.append(combination)
         valid_combinations = valid_dash_combinations
     
@@ -125,9 +129,8 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
         final_combinations[i].append(weight)
     final_combinations.sort(key=lambda c: c[2], reverse=True)
     
-    if debug:
-        for entry in final_combinations:
-            print(entry[2], entry[0], " - ".join(entry[1]))
+    for entry in final_combinations:
+        _debug_print(debug, entry[2], entry[0], " - ".join(entry[1]))
     
     if final_combinations:
         return final_combinations[0][0]
