@@ -106,9 +106,51 @@ class Krone8200Display:
         """
         Read the response from the addressed station
         """
+        timeout = 0.0
+        while not self.port.inWaiting():
+            time.sleep(0.1)
+            timeout += 0.1
+            if timeout >= 3.0:
+                raise CommunicationError("No response received from display")
         response = self.port.read(self.port.inWaiting())
+
+        while True:
+            time.sleep(0.1)
+            in_waiting = self.port.inWaiting()
+            if not in_waiting:
+                break
+            response += self.port.read(in_waiting)
+
         if self.debug:
             print("RX: " + self.debug_message(response))
+
+        if not response:
+            raise CommunicationError("No response received from display")
+
+        response = [byte & 0x7F for byte in response] # Strip checksum bit; TODO: Actually check it
+
+        if response[0] != self.PAD:
+            raise CommunicationError("First byte of response should be PAD, was " + self.debug_message(response[0:1]))
+
+        if len(response) >= 2 and response[1] == self.NAK:
+            raise CommunicationError("NAK response")
+
+        return response[1:] # Strip leading PAD
+
+    def read_response_and_handle_wait(self, tx=False):
+        response = self.read_response()
+        wait_count = 0
+        while self.check_response_wait(response):
+            wait_count += 1
+            if wait_count >= 3:
+                self.send_end_comm()
+                raise CommunicationError("Maximum wait retries exceeded")
+            time.sleep(3)
+            if tx:
+                self.send_raw_message([self.PAD, self.EOT, self.PAD, self.tx_address[0], self.tx_address[1], self.ENQ, self.PAD])
+            else:
+                self.send_raw_message([self.PAD, self.EOT, self.PAD, self.rx_address[0], self.rx_address[1], self.ENQ, self.PAD])
+            response = self.read_response()
         return response
 
     def send_raw_message(self, message):
@@ -121,21 +163,23 @@ class Krone8200Display:
     def send_rx_request(self):
         self.send_raw_message([self.PAD, self.EOT, self.PAD, self.rx_address[0], self.rx_address[1], self.ENQ, self.PAD])
         time.sleep(0.2)
-        return self.check_response_ack()
+        response = self.read_response_and_handle_wait(tx=False)
+        return self.check_response_ack(response)
 
     def send_tx_request(self):
         self.send_raw_message([self.PAD, self.EOT, self.PAD, self.tx_address[0], self.tx_address[1], self.ENQ, self.PAD])
         time.sleep(0.5)
-        return self.read_response()
+        response = self.read_response_and_handle_wait(tx=True)
+        return response
 
-    def check_response_ack(self):
-        response = self.read_response()
-        response = [byte & 0x7F for byte in response] # Strip checksum bit
-        if not response:
-            raise CommunicationError("No response received from display")
-        if response[0] != self.PAD:
-            return False
-        if tuple(response[1:3]) not in (self.ACK0, self.ACK1):
+    def check_response_wait(self, response):
+        # Return True if the response is a "wait" sequence
+        if tuple(response) == self.WABT:
+            return True
+        return False
+
+    def check_response_ack(self, response):
+        if tuple(response) not in (self.ACK0, self.ACK1):
             return False
         return True
 
@@ -150,10 +194,10 @@ class Krone8200Display:
         self.send_raw_message(cmd)
 
     def send_end_comm(self):
-        """
-        Send an "end communication" marker.
-        """
         self.send_raw_message([self.PAD, self.EOT, self.PAD])
+
+    def send_ack0(self):
+        self.send_raw_message([self.PAD, self.DLE, 0x30, self.PAD])
 
     def send_command(self, address, side, command):
         """
@@ -163,7 +207,9 @@ class Krone8200Display:
             return False
         self.send_message("{address:>02}{side:>01}{command}".format(address=address, side=side, command=command))
         time.sleep(0.2)
-        if not self.check_response_ack():
+
+        response = self.read_response_and_handle_wait(tx=False)
+        if not self.check_response_ack(response):
             return False
         self.send_end_comm()
         return True
