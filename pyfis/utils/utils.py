@@ -78,11 +78,13 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
             if vias_in_route(route, entry['stations']):
                 group_candidates.append(pos)
         via_candidates.append(group_candidates)
+    _debug_print(debug, "Via candidates:")
     _debug_print(debug, via_candidates)
     
     # Check all combinations to see if the order makes sense
     combinations = itertools.product(*via_candidates)
     valid_combinations = []
+    _debug_print(debug, "\nVia candidates with sensible order:")
     for combination in combinations:
         stations = []
         for group, pos in enumerate(combination):
@@ -96,6 +98,7 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
     # cannot start with one.
     if check_dashes:
         valid_dash_combinations = []
+        _debug_print(debug, "\nCandidates after check_dashes:")
         for combination in valid_combinations:
             valid = True
             prev_text = None
@@ -103,7 +106,7 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
                 text = via_groups[group][pos]['text'].strip()
                 if group > 0:
                     if prev_text and text and prev_text.endswith("-") == text.startswith("-"):
-                        _debug_print(debug, "NO:", prev_text, text)
+                        _debug_print(debug, "Excluded: ", prev_text, text)
                         valid = False
                         break
                 prev_text = text
@@ -117,7 +120,7 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
     for combination in valid_combinations:
         text_stations = []
         for group, pos in enumerate(combination):
-            text_stations.extend([s.strip() for s in via_groups[group][pos]['text'].split("-") if s.strip()])
+            text_stations.extend([s.strip() for s in via_groups[group][pos]['text'].split(" - ") if s.strip()])
         final_combinations.append([combination, text_stations])
     
     # Calculate the total weight of each combinations
@@ -128,9 +131,11 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
             weight += weights.get(text_station, 1)
         final_combinations[i].append(weight)
     final_combinations.sort(key=lambda c: c[2], reverse=True)
-    
+
+    _debug_print(debug, "\nFinal combinations (Score, Positions, Text):")
     for entry in final_combinations:
         _debug_print(debug, entry[2], entry[0], " - ".join(entry[1]))
+    _debug_print(debug, "")
     
     if final_combinations:
         return final_combinations[0][0]
