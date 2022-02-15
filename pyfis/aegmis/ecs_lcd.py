@@ -139,8 +139,8 @@ class ECSLCDisplay:
                 pass
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
-        self.socket_rfile = self.socket.makefile('r')
-        self.socket_wfile = self.socket.makefile('w')
+        self.socket_rfile = self.socket.makefile('r', encoding='latin-1')
+        self.socket_wfile = self.socket.makefile('w', encoding='latin-1')
 
     def write(self, data):
         self.socket_wfile.write(data)
