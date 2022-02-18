@@ -16,6 +16,7 @@ This library currently supports the following devices:
   * KRONE / MAN System 9000/8200E "FBK" split-flap group controller boards
   * KRONE / MAN System 9000/8200E "HLST" heater and light control boards
   * KRONE System 8200 (doesn't require any modifications, can send commands to the integrated display controller)
+  * KRONE System 8200 PST boards (the piggyback boards on each split-flap module)
   * OMEGA split-flap units with RS-485 data protocol
 * Other displays
   * AEG MIS LCD signs:

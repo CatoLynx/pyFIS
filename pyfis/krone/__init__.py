@@ -1,5 +1,5 @@
 """
-Copyright (C) 2019 - 2020 Julian Metzler
+Copyright (C) 2019 - 2022 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,3 +19,4 @@ from .k9000_fbm import Krone9000FBM
 from .k9000_fbk import Krone9000FBK
 from .k9000_hlst import Krone9000HLST
 from .k8200 import Krone8200Display
+from .k8200_pst import Krone8200PST
