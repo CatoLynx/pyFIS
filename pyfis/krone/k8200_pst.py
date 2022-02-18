@@ -23,7 +23,7 @@ from .exceptions import CommunicationError
 
 class Krone8200PST:
     """
-    Controls the PST bus in a Krons 8200 split-flap display.
+    Controls the PST bus in a Krone 8200 split-flap display.
     """
 
     def __init__(self, port, debug = False, exclusive = False):
