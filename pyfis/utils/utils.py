@@ -93,8 +93,6 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
         if vias_in_route(route, stations):
             _debug_print(debug, combination, stations)
             valid_combinations.append(combination)
-        else:
-            _debug_print(debug, "NO:", combination, stations)
 
 
     
@@ -167,7 +165,7 @@ def map_from_csv(filename):
     with open(filename, newline='') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
         for i, row in enumerate(reader):
-            if i == 0:
+            if i == 0 or not row[1]:
                 continue
             _map[int(row[0])] = row[1]
     return _map
