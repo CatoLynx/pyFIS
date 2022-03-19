@@ -93,8 +93,6 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
         if vias_in_route(route, stations):
             _debug_print(debug, combination, stations)
             valid_combinations.append(combination)
-
-
     
     # If check_dashes is True, check if the starts and endings are compatible,
     # i.e. if the first segment ends on a dash, the next one
