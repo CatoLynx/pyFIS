@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import csv
 import itertools
 
 
@@ -141,3 +142,28 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
         return final_combinations[0][0]
     else:
         return None
+
+def vias_from_csv(filename):
+    # Build the dict required for get_vias from a CSV file
+    vias = {}
+    with open(filename, newline='') as f:
+        reader = csv.reader(f, delimiter=';', quotechar='"')
+        for i, row in enumerate(reader):
+            if i == 0 or not row[1]:
+                continue
+            vias[int(row[0])] = {
+                'text': row[1],
+                'stations': [entry for entry in row[2:] if entry]
+            }
+    return vias
+
+def map_from_csv(filename):
+    # Build the dict required for SplitFlapDisplay from a CSV file
+    _map = {}
+    with open(filename, newline='') as f:
+        reader = csv.reader(f, delimiter=';', quotechar='"')
+        for i, row in enumerate(reader):
+            if i == 0:
+                continue
+            _map[int(row[0])] = row[1]
+    return _map
