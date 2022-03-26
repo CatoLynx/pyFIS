@@ -146,7 +146,7 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
 def vias_from_csv(filename):
     # Build the dict required for get_vias from a CSV file
     vias = {}
-    with open(filename, newline='') as f:
+    with open(filename, newline='', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
         for i, row in enumerate(reader):
             if i == 0 or not row[1]:
@@ -160,7 +160,7 @@ def vias_from_csv(filename):
 def map_from_csv(filename):
     # Build the dict required for SplitFlapDisplay from a CSV file
     _map = {}
-    with open(filename, newline='') as f:
+    with open(filename, newline='', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
         for i, row in enumerate(reader):
             if i == 0 or not row[1]:
