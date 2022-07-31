@@ -115,14 +115,17 @@ def get_vias(route, weights, *via_groups, check_dashes=True, debug=False):
                 _debug_print(debug, combination)
                 valid_dash_combinations.append(combination)
         valid_combinations = valid_dash_combinations
-    
+
     # Build the texts of all valid combinations
+    # and remove combinations that contain double entries
     final_combinations = []
     for combination in valid_combinations:
         text_stations = []
         for group, pos in enumerate(combination):
             text_stations.extend([s.strip() for s in via_groups[group][pos]['text'].split(" - ") if s.strip()])
-        final_combinations.append([combination, text_stations])
+        if len(set(text_stations)) == len(text_stations):
+            # No double entries detected
+            final_combinations.append([combination, text_stations])
     
     # Calculate the total weight of each combinations
     for i, entry in enumerate(final_combinations):
