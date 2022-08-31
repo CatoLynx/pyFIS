@@ -70,7 +70,7 @@ class FraportAPI:
         }
         return out
     
-    def get_flights(self, flight_type='departures', count=10, lang="en", page=1):
+    def get_flights(self, flight_type='departures', count=10, lang="en", page=1, timestamp=None):
         """
         Get flight data
         
@@ -84,7 +84,7 @@ class FraportAPI:
             'lang': lang,
             'page': page,
             'flighttype': flight_type,
-            'time': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:00.000Z')
+            'time': (timestamp or datetime.datetime.utcnow()).strftime('%Y-%m-%dT%H:%M:00.000Z')
         }
         is_arrival = flight_type == 'arrivals'
         resp = requests.get("https://www.frankfurt-airport.com/de/_jcr_content.flights.json/filter", params=get_params)
