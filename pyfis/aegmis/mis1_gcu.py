@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 import time
 
-from ..utils import debug_hex
+from ..utils import debug_hex, TcpSerialPort
 
 
 class MIS1GCUDisplay:
@@ -44,7 +44,7 @@ class MIS1GCUDisplay:
     def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False):
         self.address = address
         self.debug = debug
-        if isinstance(port, serial.Serial):
+        if isinstance(port, serial.Serial) or isinstance(port, TcpSerialPort):
             self.port = port
         else:
             self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
