@@ -103,4 +103,10 @@ class MIS1Board:
         gcu_index = row // self.rows_per_gcu
         gcu_row = row % self.rows_per_gcu
         self.gcu_outputs[gcu_index][gcu_row] = 1 if state else 0
-        self.gcus[gcu_index].set_outputs(self.gcu_outputs[gcu_index])
+    
+    def update_blinkers(self):
+        """
+        Update the GPIOs according to the internal blinker states
+        """
+        for i, gcu in enumerate(self.gcus):
+            gcu.set_outputs(self.gcu_outputs[i])
