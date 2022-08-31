@@ -84,7 +84,7 @@ class FraportAPI:
             'lang': lang,
             'page': page,
             'flighttype': flight_type,
-            'time': datetime.datetime.utcnow().isoformat() + "Z"
+            'time': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:00.000Z')
         }
         is_arrival = flight_type == 'arrivals'
         resp = requests.get("https://www.frankfurt-airport.com/de/_jcr_content.flights.json/filter", params=get_params)
