@@ -19,6 +19,7 @@ import serial
 import time
 
 from .exceptions import CommunicationError
+from ..utils.base_serial import BaseSerialPort
 
 
 class Krone8200PST:
@@ -28,7 +29,7 @@ class Krone8200PST:
 
     def __init__(self, port, debug = False, exclusive = False):
         self.debug = debug
-        if isinstance(port, serial.Serial):
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
             self.port = serial.Serial(port, baudrate=2400, timeout=1.0, exclusive=exclusive)

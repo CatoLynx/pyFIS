@@ -19,6 +19,7 @@ import serial
 import time
 
 from .exceptions import CommunicationError, NACKError, BusyError
+from ..utils.base_serial import BaseSerialPort
 
 
 class Krone9000RS485Controller:
@@ -44,7 +45,7 @@ class Krone9000RS485Controller:
     def __init__(self, port, address, timeout = 1.0, debug = False, exclusive = False):
         self.address = address
         self.debug = debug
-        if isinstance(port, serial.Serial):
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
             self.port = serial.Serial(port, baudrate=19200, timeout=timeout, exclusive=exclusive)

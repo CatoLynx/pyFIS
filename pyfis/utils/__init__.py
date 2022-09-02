@@ -17,3 +17,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .utils import *
 from .tcp_serial import TcpSerialPort
+from .dummy_serial import DummySerialPort

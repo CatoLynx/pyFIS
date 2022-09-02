@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 import time
 
+from ..utils.base_serial import BaseSerialPort
+
 
 class Krone9000FBM:
     """
@@ -66,7 +68,7 @@ class Krone9000FBM:
 
     def __init__(self, port, debug = False, exclusive = False):
         self.debug = debug
-        if isinstance(port, serial.Serial):
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
             self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=2.0, exclusive=exclusive)

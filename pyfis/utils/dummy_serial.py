@@ -15,27 +15,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import socket
 from .base_serial import BaseSerialPort
 
 
-class TcpSerialPort(BaseSerialPort):
-    def __init__(self, host, port, timeout=2.0):
-        """
-        host: The hostname or IP to connect to
-        port: The TCP port to use for communication
-        timeout: The socket timeout in seconds
-        """
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((host, port))
-        self.socket.settimeout(timeout)
-
+class DummySerialPort(BaseSerialPort):
     def write(self, data):
-        return self.socket.send(bytearray(data))
+        pass
 
     def read(self, length):
-        # Read the specified number of bytes, blocking
-        return self.socket.recv(length)
+        return bytes(length)
 
     def setRTS(self, state):
         pass
@@ -54,6 +42,3 @@ class TcpSerialPort(BaseSerialPort):
 
     def getCD(self):
         return 0
-
-    def __del__(self):
-        self.socket.close()

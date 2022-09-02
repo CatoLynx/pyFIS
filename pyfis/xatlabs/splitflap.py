@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 import time
 
-
 from .exceptions import CommunicationError
+from ..utils.base_serial import BaseSerialPort
 
 
 class xatLabsSplitFlapController:
@@ -36,7 +36,7 @@ class xatLabsSplitFlapController:
 
     def __init__(self, port, debug = False, exclusive = True):
         self.debug = debug
-        if isinstance(port, serial.Serial):
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
             self.port = serial.Serial(port, baudrate=115200, timeout=2.0, exclusive=exclusive)

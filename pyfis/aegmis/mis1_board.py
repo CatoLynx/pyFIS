@@ -20,7 +20,7 @@ import serial
 import time
 
 from .mis1_gcu import MIS1GCUDisplay
-from ..utils import TcpSerialPort
+from ..utils.base_serial import BaseSerialPort
 
 
 class MIS1Board:
@@ -43,7 +43,7 @@ class MIS1Board:
         self.num_rows = num_rows
         self.rows_per_gcu = rows_per_gcu
         
-        if isinstance(port, serial.Serial) or isinstance(port, TcpSerialPort):
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
             self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
