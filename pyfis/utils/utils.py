@@ -156,7 +156,7 @@ def vias_from_csv(filename):
                 continue
             vias[int(row[0])] = {
                 'text': row[1],
-                'stations': [entry for entry in row[2:] if entry]
+                'stations': [[subentry.strip() for subentry in entry.split(",")] for entry in row[2:] if entry]
             }
     return vias
 
