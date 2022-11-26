@@ -15,8 +15,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import tkinter as tk
-import tkinter.font as tkFont
+HAS_TKINTER = False
+try:
+    import tkinter as tk
+    import tkinter.font as tkFont
+    HAS_TKINTER = True
+except ModuleNotFoundError:
+    pass
 
 from .fields import *
 
@@ -28,6 +33,9 @@ This can be used to easily build a manual control tool for a display.
 
 class SplitFlapGUI:
     def __init__(self, display, parent):
+        if not HAS_TKINTER:
+            raise RuntimeError("Tkinter could not be loaded. Please make sure the tkinter module exists.")
+        
         self.display = display
         self.parent = parent
         self.field_widgets = {}
