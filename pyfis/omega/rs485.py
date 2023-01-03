@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020 Julian Metzler
+Copyright (C) 2020 - 2023 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ class OmegaRS485Controller:
     Commonly found in Swiss (SBB CFF FFS) station displays.
     """
 
-    def __init__(self, port, debug = False, exclusive = False):
+    def __init__(self, port, debug = False, exclusive = True):
         self.debug = debug
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port

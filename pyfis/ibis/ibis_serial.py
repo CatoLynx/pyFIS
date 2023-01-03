@@ -1,5 +1,5 @@
 """
-Copyright (C) 2016 - 2020 Julian Metzler
+Copyright (C) 2016 - 2023 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ class SerialIBISMaster(IBISProtocol):
     """
     
     def __init__(self, port, baudrate = 1200, bytesize = 7, parity = 'E',
-                 stopbits = 2, timeout = 2.0, exclusive = False, *args, **kwargs):
+                 stopbits = 2, timeout = 2.0, exclusive = True, *args, **kwargs):
         """
         port:
         The serial port to use for communication

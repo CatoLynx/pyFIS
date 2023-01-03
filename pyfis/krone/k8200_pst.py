@@ -1,5 +1,5 @@
 """
-Copyright 2019 - 2022 Julian Metzler
+Copyright 2019 - 2023 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ class Krone8200PST:
     Controls the PST bus in a Krone 8200 split-flap display.
     """
 
-    def __init__(self, port, debug = False, exclusive = False):
+    def __init__(self, port, debug = False, exclusive = True):
         self.debug = debug
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port

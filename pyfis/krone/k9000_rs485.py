@@ -1,5 +1,5 @@
 """
-Copyright (C) 2019 - 2020 Julian Metzler
+Copyright (C) 2019 - 2023 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class Krone9000RS485Controller:
     RETRY_COUNT = 10
     RETRY_INTERVAL = 0.2
 
-    def __init__(self, port, address, timeout = 1.0, debug = False, exclusive = False):
+    def __init__(self, port, address, timeout = 1.0, debug = False, exclusive = True):
         self.address = address
         self.debug = debug
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
