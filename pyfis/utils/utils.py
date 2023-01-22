@@ -1,5 +1,5 @@
 """
-Copyright (C) 2021-2022 Julian Metzler
+Copyright (C) 2021-2023 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -161,7 +161,8 @@ def vias_from_csv(filename):
     return vias
 
 def map_from_csv(filename):
-    # Build the dict required for SplitFlapDisplay from a CSV file
+    # Build the dict required for SplitFlapDisplay from a CSV file.
+    # CSV format: column 0 = flap position, column 1 = destination as printed on the flap
     _map = {}
     with open(filename, newline='', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
@@ -169,4 +170,19 @@ def map_from_csv(filename):
             if i == 0 or not row[1]:
                 continue
             _map[int(row[0])] = row[1]
+    return _map
+
+def alternatives_map_from_csv(filename):
+    # Build the dict required for an alternative station name mapping from a CSV file.
+    # CSV format: column 0 = flap position (irrelevant), column 1 = destination as printed on the flap,
+    # column 2 = comma separated list of alternative station names that map to this flap
+    _map = {}
+    with open(filename, newline='', encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter=';', quotechar='"')
+        for i, row in enumerate(reader):
+            if i == 0 or not row[1]:
+                continue
+            for station_name in row[2].split(","):
+                if station_name.strip() and station_name.strip() != row[1]:
+                    _map[station_name.strip()] = row[1]
     return _map
