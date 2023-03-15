@@ -71,6 +71,18 @@ class OmegaRS485Controller:
     def set_position(self, address, position):
         self.send_command(address, 0xC0, position)
 
+    def calibration_start(self, address):
+        self.send_command(address, 0xCC)
+
+    def calibration_step(self, address):
+        self.send_command(address, 0xC6)
+
+    def calibration_pulse(self, address):
+        self.send_command(address, 0xC7)
+
+    def calibration_finish(self, address, position):
+        self.send_command(address, 0xCB, position)
+
     def set_address(self, address, new_address):
         self.send_command(address, 0xCE, new_address)
 
@@ -80,7 +92,7 @@ class OmegaRS485Controller:
 
     def read_serial_number(self, address):
         self.send_command(address, 0xDF)
-        return self.read_response(1)
+        return self.read_response(4)
 
     def d_set_module_data(self, module_data):
         # Compatibility function for SplitFlapDisplay class
