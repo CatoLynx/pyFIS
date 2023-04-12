@@ -56,8 +56,16 @@ class Krone8200Display:
         PAD: "PAD"
     }
 
-    def __init__(self, port, address, debug = False, exclusive = True):
+    def __init__(self, port, address, debug = False, exclusive = True, is_board = False):
+        """
+        Note on the is_board parameter: If this is True, pyFIS will not add
+        any PAD bytes to the messages. This is - for some reason - required
+        to control "board" style displays, i.e. displays using a firmware
+        designed for large boards with lots of lines.
+        However, this firmware has been used even for two-line displays!
+        """
         self.debug = debug
+        self.is_board = is_board
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
@@ -162,13 +170,19 @@ class Krone8200Display:
         self.port.write(bytearray(message))
 
     def send_rx_request(self):
-        self.send_raw_message([self.PAD, self.EOT, self.PAD, self.rx_address[0], self.rx_address[1], self.ENQ, self.PAD])
+        if self.is_board:
+            self.send_raw_message([self.EOT, self.rx_address[0], self.rx_address[1], self.ENQ])
+        else:
+            self.send_raw_message([self.PAD, self.EOT, self.PAD, self.rx_address[0], self.rx_address[1], self.ENQ, self.PAD])
         time.sleep(0.2)
         response = self.read_response_and_handle_wait(tx=False)
         return self.check_response_ack(response)
 
     def send_tx_request(self):
-        self.send_raw_message([self.PAD, self.EOT, self.PAD, self.tx_address[0], self.tx_address[1], self.ENQ, self.PAD])
+        if self.is_board:
+            self.send_raw_message([self.EOT, self.tx_address[0], self.tx_address[1], self.ENQ])
+        else:
+            self.send_raw_message([self.PAD, self.EOT, self.PAD, self.tx_address[0], self.tx_address[1], self.ENQ, self.PAD])
         time.sleep(0.5)
         response = self.read_response_and_handle_wait(tx=True)
         return response
