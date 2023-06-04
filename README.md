@@ -25,6 +25,7 @@ This library currently supports the following devices:
     * Graphical displays using the ECS protocol
   * Oltmann VISTRA-I passenger information displays
   * microSYST migra industrial LED signs using TCP/IP
+  * My own "Cheetah" universal display controller
   * My own very basic and generic split-flap interface protocol (you can use this to interface with any split-flap type display)
   * My own protocol for controlling a single-line scrolling RGB text display
 * Data Sources

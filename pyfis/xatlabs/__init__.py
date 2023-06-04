@@ -17,3 +17,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .splitflap import xatLabsSplitFlapController
 from .rgb_dsa import xatLabsRGBDSAController
+from .cheetah import xatLabsCheetah
