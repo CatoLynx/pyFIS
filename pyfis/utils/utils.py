@@ -52,6 +52,8 @@ def debug_hex(message, readable_ascii = False, readable_ctrl = False):
 def vias_in_route(route, vias):
     # Check if the given vias are all present in the given route in the right order
     # If an entry in vias is a list, all of its items will be considered to be aliases of each other
+    if not vias:
+        return False
     i = 0
     j = 0
     while i < len(route) and j < len(vias):
