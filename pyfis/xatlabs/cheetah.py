@@ -40,11 +40,18 @@ class xatLabsCheetah:
         self.device_info = None
         self.load_display_info()
         self.load_device_info()
+        self.init_framebuf()
+
+    def init_framebuf(self):
         display_type = self.display_info.get('type')
         if display_type == 'character':
             self.framebuf = [0] * self.display_info["charbuf_size"]
         elif display_type == 'selection':
             self.framebuf = [0] * self.display_info["framebuf_size"]
+            if 'units' in self.display_info['config']:
+                for unit in self.display_info['config']['units']:
+                    if 'addr' in unit and 'home' in unit:
+                        self.framebuf[unit['addr']] = unit['home']
         else:
             raise NotImplementedError("Unsupported display type: {}".format(display_type))
 
@@ -64,7 +71,7 @@ class xatLabsCheetah:
         return count
 
     def update_framebuf_text(self, text):
-        self.framebuf = [0] * self.display_info["charbuf_size"]
+        self.init_framebuf()
         val = ""
         for e in text.split("\n"):
             actual_len = self.get_actual_char_count(e)
@@ -85,7 +92,7 @@ class xatLabsCheetah:
                 self.framebuf[i] = code if code <= 255 else 0
 
     def update_framebuf_sel(self, module_data):
-        self.framebuf = [0] * self.display_info["framebuf_size"]
+        self.init_framebuf()
         for pos, val in module_data.items():
             self.framebuf[pos] = int(val)
 
@@ -134,9 +141,9 @@ class xatLabsCheetah:
         display = SplitFlapDisplay(self)
         for unit in unit_data:
             if unit['type'] == 'map':
-                field = CustomMapField(map_data.get(unit.get('map', None), {}), start_address=unit['addr'], length=unit['len'], x=unit['x'], y=unit['y'], module_width=unit['width'], module_height=unit['height'])
+                field = CustomMapField(map_data.get(unit.get('map', None), {}), start_address=unit['addr'], length=unit['len'], x=unit['x'], y=unit['y'], module_width=unit['width'], module_height=unit['height'], home_pos=unit['home'])
                 setattr(display, unit['name'], field)
             elif unit['type'] == 'text':
-                field = TextField(start_address=unit['addr'], length=unit['len'], x=unit['x'], y=unit['y'], module_width=unit['width'], module_height=unit['height'], display_mapping=map_data.get(unit.get('map', None), None))
+                field = TextField(start_address=unit['addr'], length=unit['len'], x=unit['x'], y=unit['y'], module_width=unit['width'], module_height=unit['height'], home_pos=unit['home'], display_mapping=map_data.get(unit.get('map', None), None))
                 setattr(display, unit['name'], field)
         return display
