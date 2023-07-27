@@ -16,6 +16,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from .ecs_lcd import ECSLCDisplay
-from .mis1_gcu import MIS1GCUDisplay
-from .mis2_gcu import MIS2GCUDisplay
+from .mis1_text import MIS1TextDisplay
+from .mis2_text import MIS2TextDisplay
 from .mis1_board import MIS1Board

@@ -1,5 +1,5 @@
 """
-Copyright (C) 2021 Julian Metzler
+Copyright (C) 2021-2023 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,15 +22,7 @@ from ..utils import debug_hex
 from ..utils.base_serial import BaseSerialPort
 
 
-class MIS2GCUDisplay:
-    ALIGN_LEFT = 0x00
-    ALIGN_RIGHT = 0x01
-    ALIGN_CENTER = 0x02
-    
-    ATTR_BLINK = 0x01
-    ATTR_INVERT = 0x10
-    ATTR_BLINK_INV = 0x08
-    
+class MIS2Protocol:
     def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False):
         self.address = address
         self.debug = debug
@@ -65,48 +57,11 @@ class MIS2GCUDisplay:
     
     def send_command(self, code, subcode, data):
         return self.send_raw_telegram([code, subcode] + data)
-    
-    def merge_attributes(self, text):
-        if type(text) in (tuple, list):
-            merged = ""
-            for t, attrs in text:
-                merged += "\x00" + chr(attrs) + t
-            return merged
-        return text
 
     def set_timeout(self, timeout):
         # Timeout in seconds, resolution 0.5s, range 0 ... 32767
         timeout = round(timeout * 2)
         return self.send_command(0x01, 0x00, [timeout >> 8, timeout & 0xFF])
-
-    def text(self, page, row, col_start, col_end, text, attrs = ALIGN_LEFT):
-        # Page 0xFF is the fallback page and will be saved permanently
-        # Page 0xFE copies the page to all 10 slots
-        text = self.merge_attributes(text)
-        text = text.encode("CP437")
-        data = [page, row, col_start >> 8, col_start & 0xFF, col_end >> 8, col_end & 0xFF, attrs] + list(text)
-        return self.send_command(0x15, 0x00, data)
-
-    def delete_line(self, page, line):
-        return self.send_command(0x23, 0x00, [page, line])
-    
-    def set_pages(self, pages):
-        # pages: List of tuples in the form
-        # (page, duration) - duration in seconds, 0.5s resolution
-        data = []
-        for page, duration in pages:
-            data.append(page)
-            data.append(round(duration * 2))
-        return self.send_command(0x24, 0x00, data)
-    
-    def set_page(self, page):
-        return self.set_pages([(page, 10)])
-
-    def copy_page(self, src_page, dest_page):
-        return self.send_command(0x26, 0x00, [src_page, dest_page])
-
-    def delete_page(self, page):
-        return self.send_command(0x2F, 0x00, [page])
 
     def reset(self):
         return self.send_command(0x31, 0x00, [])

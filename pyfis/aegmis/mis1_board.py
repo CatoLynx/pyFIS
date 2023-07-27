@@ -19,7 +19,7 @@ import math
 import serial
 import time
 
-from .mis1_gcu import MIS1GCUDisplay
+from .mis1_text import MIS1TextDisplay
 from ..utils.base_serial import BaseSerialPort
 
 

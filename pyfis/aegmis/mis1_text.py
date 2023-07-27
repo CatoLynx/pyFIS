@@ -18,11 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 import time
 
+from .mis1_protocol import MIS1Protocol
+
 from ..utils import debug_hex
 from ..utils.base_serial import BaseSerialPort
 
 
-class MIS1GCUDisplay:
+class MIS1TextDisplay(MIS1Protocol):
     ALIGN_LEFT = 0x00
     ALIGN_RIGHT = 0x01
     ALIGN_CENTER = 0x02
@@ -41,41 +43,6 @@ class MIS1GCUDisplay:
     TIME_FORMAT_24H = 0x01
     TIME_FORMAT_12H_AM_PM = 0x02
     TIME_FORMAT_12H = 0x03
-    
-    def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False):
-        self.address = address
-        self.debug = debug
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.port = port
-        else:
-            self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
-
-    def checksum(self, data):
-        checksum = 0x00
-        for i, byte in enumerate(data):
-            checksum += byte
-        return (checksum % 256) | 0x80
-
-    def escape(self, data):
-        escaped = []
-        for byte in data:
-            if byte in (0x02, 0x03, 0x04, 0x05, 0x10):
-                escaped += [0x10, byte]
-            else:
-                escaped.append(byte)
-        return escaped
-    
-    def send_raw_telegram(self, data):
-        telegram = [0x04, (0x80 | self.address), 0x02] + self.escape(data) + [0x03] + [self.checksum(data + [0x03])]
-        if self.debug:
-            print(debug_hex(telegram, readable_ascii=False, readable_ctrl=False))
-        self.port.setRTS(1)
-        self.port.write(telegram)
-        time.sleep(0.1)
-        self.port.setRTS(0)
-    
-    def send_command(self, code, subcode, data):
-        return self.send_raw_telegram([code, subcode] + data)
     
     def merge_attributes(self, text):
         if type(text) in (tuple, list):
@@ -125,11 +92,3 @@ class MIS1GCUDisplay:
         data += [time_col_start >> 8, time_col_start & 0xFF]
         data += [time_col_end >> 8, time_col_end & 0xFF]
         return self.send_command(0x3D, 0x00, data)
-    
-    def set_outputs(self, states):
-        # states: array of 8 bools representing outputs 0 through 7
-        state_byte = 0x00
-        for i in range(max(8, len(states))):
-            if states[i]:
-                state_byte |= (1 << i)
-        return self.send_command(0x41, 0x00, [0x00, 0x00, state_byte])
