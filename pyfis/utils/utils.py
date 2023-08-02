@@ -19,6 +19,15 @@ import csv
 import itertools
 
 
+def high16(value):
+    # Get high byte of a 16-bit value
+    return value >> 8
+
+def low16(value):
+    # Get low byte of a 16-bit value
+    return value & 0xFF
+
+
 def _debug_print(debug, *args, **kwargs):
     if debug:
         print(*args, **kwargs)

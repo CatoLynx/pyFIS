@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020-2021 Julian Metzler
+Copyright (C) 2020-2023 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -71,6 +71,15 @@ class MIS1TextDisplay(MIS1Protocol):
     
     def set_page(self, page):
         return self.set_pages([(page, 255)])
+
+    def reset(self):
+        return self.send_command(0x31, 0x00, [])
+
+    def set_test_mode(self, state):
+        return self.send_command(0x32, 0x00, [1 if state else 0])
+
+    def sync(self):
+        return self.send_command(0x34, 0x00, [])
     
     def set_clock(self, year, month, day, hour, minute, second):
         # apparently unsupported
@@ -92,3 +101,11 @@ class MIS1TextDisplay(MIS1Protocol):
         data += [time_col_start >> 8, time_col_start & 0xFF]
         data += [time_col_end >> 8, time_col_end & 0xFF]
         return self.send_command(0x3D, 0x00, data)
+    
+    def set_outputs(self, states):
+        # states: array of 8 bools representing outputs 0 through 7
+        state_byte = 0x00
+        for i in range(max(8, len(states))):
+            if states[i]:
+                state_byte |= (1 << i)
+        return self.send_command(0x41, 0x00, [0x00, 0x00, state_byte])
