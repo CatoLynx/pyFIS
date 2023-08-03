@@ -273,7 +273,7 @@ class MIS1MatrixDisplay(MIS1Protocol):
             for x_offset in range(width):
                 if pixels[x_offset, y_offset] > 127:
                     byte |= (1 << x_bit)
-                if x_bit == 0:
+                if x_bit == 0 or x_offset == width - 1:
                     x_bit = 7
                     pixel_data.append(byte)
                     byte = 0x00
@@ -301,10 +301,39 @@ class MIS1MatrixDisplay(MIS1Protocol):
             for x_offset in range(width):
                 if pixels[x_offset, y_offset] > 127:
                     byte |= (1 << x_bit)
-                if x_bit == 0:
+                if x_bit == 0 or x_offset == width - 1:
                     x_bit = 7
                     pixel_data.append(byte)
                     byte = 0x00
                 else:
                     x_bit -= 1
-            self.scroll_image_data(sector, page, _y, pixel_data)
+            self.scroll_image_data(sector, page, y_offset, pixel_data)
+
+    def animation(self, sector_start, page, x, y, image):
+        # Splits the animation into 1-pixel wide scroll sectors
+        # that scroll through a spatial representation of the animation
+        if not isinstance(image, Image.Image):
+            image = Image.open(image)
+        width, height = image.size
+
+        orig_frames = []
+        try:
+            while True:
+                orig_frames.append(image.convert('L').load())
+                # Next frame
+                image.seek(image.tell() + 1)
+        except EOFError:
+            pass
+
+        num_frames = len(orig_frames)
+        scroll_frames = []
+        for i in range(width):
+            scroll_frame = Image.new('L', (num_frames, height), 'black')
+            scroll_pixels = scroll_frame.load()
+            for _x, frame in enumerate(orig_frames):
+                for _y in range(height):
+                    scroll_pixels[_x, _y] = frame[i, _y]
+            scroll_frames.append(scroll_frame)
+
+        for _x, scroll_frame in enumerate(scroll_frames):
+            self.scroll_image(sector_start + _x, page, x + _x, y, 1, scroll_frame)

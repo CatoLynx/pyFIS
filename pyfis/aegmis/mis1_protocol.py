@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 import time
 
-from .exceptions import CommunicationError
+from .exceptions import CommunicationError, DisplayError
 from ..utils import debug_hex
 from ..utils.base_serial import BaseSerialPort
 
