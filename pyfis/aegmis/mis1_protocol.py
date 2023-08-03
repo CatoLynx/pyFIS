@@ -156,8 +156,8 @@ class MIS1Protocol:
 
     def check_error(self, response):
         if len(response) < 7:
-            return None
+            return
         if response[1] != 0x8C:
-            return None
+            return
         data = self.unescape(response[3:-2])
-        return self.ERROR_CODES.get(data[1], str(data[1]))
+        raise DisplayError(self.ERROR_CODES.get(data[1], str(data[1])))

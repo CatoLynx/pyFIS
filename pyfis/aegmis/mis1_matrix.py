@@ -21,7 +21,6 @@ import time
 from PIL import Image
 
 from .mis1_protocol import MIS1Protocol
-from .exceptions import MemoryAllocationError
 
 from ..utils import debug_hex, high16, low16
 from ..utils.base_serial import BaseSerialPort
@@ -292,8 +291,7 @@ class MIS1MatrixDisplay(MIS1Protocol):
         self.create_scroll_area(sector, page, x, y, scroll_width, height, width)
         for i in range(10):
             response = self.send_tx_request()
-            if self.check_error(response) == "EALLOC":
-                raise MemoryAllocationError("Matrix controller could not allocate memory for scroll area")
+            self.check_error(response)
 
         for y_offset in range(height):
             _y = y + y_offset

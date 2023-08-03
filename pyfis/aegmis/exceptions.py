@@ -19,5 +19,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class CommunicationError(IOError):
     pass
 
-class MemoryAllocationError(IOError):
+class DisplayError(IOError):
     pass
