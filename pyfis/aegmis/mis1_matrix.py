@@ -281,14 +281,14 @@ class MIS1MatrixDisplay(MIS1Protocol):
                     x_bit -= 1
             self.image_data(page, x, _y, width, pixel_data)
 
-    def scroll_image(self, sector, page, x, y, scroll_width, image):
+    def scroll_image(self, sector, page, x, y, scroll_width, image, extra_whitespace=0):
         if not isinstance(image, Image.Image):
             image = Image.open(image)
         image = image.convert('L')
         pixels = image.load()
         width, height = image.size
         
-        self.create_scroll_area(sector, page, x, y, scroll_width, height, width)
+        self.create_scroll_area(sector, page, x, y, scroll_width, height, width + extra_whitespace)
         for i in range(10):
             response = self.send_tx_request()
             self.check_error(response)
