@@ -22,8 +22,9 @@ This library currently supports the following devices:
   * AEG MIS LCD signs:
     * Character-based displays with a Geavision Control Unit (GCU) using the MIS1 or MIS2 protocols
     * Large LCD boards using multiple GCUs
-    * Graphical displays using the ECS protocol
+    * Graphical displays using the ECS protocol via network or the GSC100 controller via RS-422
   * Oltmann VISTRA-I passenger information displays
+  * aesys DSA (single-line text displays found at smaller German train stations)
   * microSYST migra industrial LED signs using TCP/IP
   * My own "Cheetah" universal display controller
   * My own very basic and generic split-flap interface protocol (you can use this to interface with any split-flap type display)
