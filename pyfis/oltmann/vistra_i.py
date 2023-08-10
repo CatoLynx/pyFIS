@@ -16,43 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import crcmod
-import json
-import os
 import socket
 import time
 
 from PIL import Image, ImageOps, ImageSequence
 
-"""
-UTILITY FUNCTIONS
-"""
-
-def get_text_width(text, font):
-    """
-    Get the width of the given text using the given font.
-    """
-    
-    if not text:
-        return 0
-    
-    try:
-        with open(os.path.join(os.path.dirname(__file__), "dimensions-{}.json".format(font)), 'r') as f:
-            dimensions = json.load(f)
-        width = 0
-        for char in text:
-            dims = dimensions.get(char, (0, 0))
-            w = dims[0]
-            if w is None:
-                w = 0
-            width += w
-        width += dimensions.get('spacing', 0) * (len(text) - 1)
-        return width
-    except FileNotFoundError:
-        raise NotImplementedError("Width calculation not available for this font")
-
-"""
-MAIN CODE
-"""
 
 class VistraI:
     """
