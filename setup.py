@@ -15,4 +15,6 @@ setup(
 	url = metadata['url'],
 	keywords = metadata['keywords'],
 	packages = find_packages(),
+	package_data = {"": ["pyfis/oltmann/*.json"]},
+	include_package_data = True
 )
