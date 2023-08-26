@@ -32,7 +32,7 @@ class Krone8200PST:
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
-            self.port = serial.Serial(port, baudrate=2400, timeout=1.0, exclusive=exclusive)
+            self.port = serial.Serial(port, baudrate=2400, stopbits=2, timeout=1.0, exclusive=exclusive)
 
     def debug_message(self, message):
         """
