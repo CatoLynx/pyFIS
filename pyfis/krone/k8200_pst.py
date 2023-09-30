@@ -27,7 +27,21 @@ class Krone8200PST:
     Controls the PST bus in a Krone 8200 split-flap display.
     """
 
-    def __init__(self, port, debug = False, exclusive = True):
+    def __init__(self, port, nmi_backend, nmi_channel, nmi_invert, debug = False, exclusive = True):
+        """
+        nmi_backend: GPIO Backend instance to control the NMI pin of the PST.
+                     This pin is used to stop a module from spinning in case
+                     the selected position can not be found.
+                     See the supported backends in pyfis.gpio_backends.
+        nmi_channel: Channel to use for the NMI signal on the selected GPIO backend
+        nmi_invert:  Whether the NMI signal is active-low (False) or active-high (True)
+        """
+
+        self.nmi_backend = nmi_backend
+        self.nmi_channel = nmi_channel
+        self.nmi_invert = nmi_invert
+        self.nmi_backend.setup_channel(self.nmi_channel, self.nmi_backend.MODE_OUT)
+        self.nmi_backend.set_output(self.nmi_channel, self.nmi_backend.STATE_LOW if self.nmi_invert else self.nmi_backend.STATE_HIGH)
         self.debug = debug
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
@@ -73,6 +87,14 @@ class Krone8200PST:
         Reset all unit controllers
         """
         return self.send_raw_message([0x1A])
+
+    def stop_all(self):
+        """
+        Stop all modules from rotating by asserting NMI
+        """
+        self.nmi_backend.set_output(self.nmi_channel, self.nmi_backend.STATE_HIGH if self.nmi_invert else self.nmi_backend.STATE_LOW)
+        time.sleep(0.01)
+        self.nmi_backend.set_output(self.nmi_channel, self.nmi_backend.STATE_LOW if self.nmi_invert else self.nmi_backend.STATE_HIGH)
 
     def d_set_module_data(self, module_data):
         # Compatibility function for SplitFlapDisplay class
