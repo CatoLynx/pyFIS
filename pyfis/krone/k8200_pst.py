@@ -20,6 +20,7 @@ import time
 
 from .exceptions import CommunicationError
 from ..utils.base_serial import BaseSerialPort
+from ..utils.utils import int_to_bcd
 
 
 class Krone8200PST:
@@ -74,7 +75,7 @@ class Krone8200PST:
         """
         Set a given unit to a given position
         """
-        return self.send_raw_message([0x3A, address, position])
+        return self.send_raw_message([0x3A, address, int_to_bcd(position)])
 
     def update(self):
         """
@@ -93,8 +94,9 @@ class Krone8200PST:
         Stop all modules from rotating by asserting NMI
         """
         self.nmi_backend.set_output(self.nmi_channel, self.nmi_backend.STATE_HIGH if self.nmi_invert else self.nmi_backend.STATE_LOW)
-        time.sleep(0.01)
+        time.sleep(0.05)
         self.nmi_backend.set_output(self.nmi_channel, self.nmi_backend.STATE_LOW if self.nmi_invert else self.nmi_backend.STATE_HIGH)
+        time.sleep(0.05)
 
     def d_set_module_data(self, module_data):
         # Compatibility function for SplitFlapDisplay class

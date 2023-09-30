@@ -27,6 +27,15 @@ def low16(value):
     # Get low byte of a 16-bit value
     return value & 0xFF
 
+def int_to_bcd(value):
+    # Turn a positive integer into its hexadecimal BCD representation.
+    # E.g. 37 => 0x37
+    result = 0x00
+    value_str = str(value)
+    for pos, char in enumerate(value_str[::-1]):
+        result += int(char) * 16**pos
+    return result
+
 
 def _debug_print(debug, *args, **kwargs):
     if debug:
