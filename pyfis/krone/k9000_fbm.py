@@ -19,6 +19,7 @@ import serial
 import time
 
 from ..utils.base_serial import BaseSerialPort
+from ..utils.utils import _debug_print, debug_hex
 
 
 class Krone9000FBM:
@@ -98,16 +99,16 @@ class Krone9000FBM:
         if position is not None:
             cmd_bytes.append(position & 0b01111111)
         
-        if self.debug:
-            print(" ".join((format(x, "#010b") for x in cmd_bytes)))
-            print(" ".join((format(x, "02X") for x in cmd_bytes)))
+        _debug_print(self.debug, "TX:", debug_hex(cmd_bytes))
         
         # Send it
         self.port.write(bytearray(cmd_bytes))
 
         # Read response
         if num_response_bytes > 0:
-            return self.port.read(num_response_bytes)
+            response = self.port.read(num_response_bytes)
+            _debug_print(self.debug, "RX:", debug_hex(response))
+            return response
         else:
             return None
     
