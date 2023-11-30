@@ -36,9 +36,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=str, required=True)
     parser.add_argument("-t", "--table", type=str, required=False)
+    parser.add_argument("-d", "--debug", action='store_true')
     args = parser.parse_args()
     
-    fbm = Krone9000FBM(args.port, exclusive=True)
+    fbm = Krone9000FBM(args.port, exclusive=True, debug=args.debug)
     
     if args.table:
         table = read_value_table(args.table)
@@ -47,6 +48,7 @@ def main():
     
     while True:
         data = input("What to do? [Code/Status/Letter/Text/Home/WrtTbl/DelTbl/caliBrate/Exit] ").upper()
+        fbm.port.read(fbm.port.inWaiting()) # Flush buffer
         if not data:
             continue
         action = data[0]
@@ -59,8 +61,8 @@ def main():
             else:
                 addr = int(data[1:])
         if action == "C":
-            sys.stdout.write("  FBM Code: ")
             code = fbm.read_code(addr)
+            sys.stdout.write("  FBM Code: ")
             if len(code) < 1:
                 print("No data received!")
                 continue
@@ -74,11 +76,11 @@ def main():
             else:
                 print(chr(code))
         elif action == "S":
-            sys.stdout.write("  FBM Status: ")
             try:
-                print(fbm.get_status(addr))
+                fbm_status = fbm.get_status(addr) or ["OK"]
+                print("  FBM Status:", ", ".join(fbm_status))
             except:
-                print("No data received!")
+                print("  FBM Status: No data received!")
                 continue
         elif action == "L":
             if len(data) < 3:
