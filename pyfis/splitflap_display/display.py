@@ -1,5 +1,5 @@
 """
-Copyright (C) 2019 - 2020 Julian Metzler
+Copyright (C) 2019 - 2024 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,10 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import json
 import random
 import time
 
 from .ascii_graphics import AsciiGraphics
+from .fields import *
 
 class SplitFlapDisplay:
     TRANSITION_LEFT_TO_RIGHT = 'ltr'
@@ -285,3 +287,61 @@ class SplitFlapDisplay:
             for i in range(field.length - 1):
                 graphics.draw_line(x + f_params['spacing'] * (i+1), y, f_params['height'], 'v', t_ends=True)
         return graphics.render()
+    
+    def export_json(self, prettify = False):
+        """
+        Exports the display configuration in a JSON format
+        that can be used with the xatLabs Cheetah display controller
+        """
+        data = {
+            'units': [],
+            'maps': {}
+        }
+        
+        for name, field in self.get_fields():
+            f_type_str = 'unknown'
+            if isinstance(field, MirrorField):
+                if isinstance(field.source_field, TextField):
+                    f_type_str = 'text'
+                elif isinstance(field.source_field, CustomMapField):
+                    f_type_str = 'map'
+            else:
+                if isinstance(field, TextField):
+                    f_type_str = 'text'
+                elif isinstance(field, CustomMapField):
+                    f_type_str = 'map'
+            
+            mapping = field.display_mapping
+            map_name = f"map_{name}"
+            map_found = False
+            if mapping:
+                # Check if this map already exists
+                for _name, _map in data['maps'].items():
+                    if hash(frozenset(_map.items())) == hash(frozenset(mapping.items())):
+                        map_found = True
+                        map_name = _name
+                        break
+            
+            # Add map if it didn't exist
+            if not map_found:
+                data['maps'][map_name] = mapping.copy()
+            
+            unit = {
+                'name': name,
+                'flags': [],
+                'type': f_type_str,
+                'addr': field.start_address,
+                'x': field.x,
+                'y': field.y,
+                'width': field.module_width,
+                'height': field.module_height,
+                'len': field.length,
+                'home_pos': field.home_pos,
+                'map': map_name
+            }
+            data['units'].append(unit)
+            
+        if prettify:
+            return json.dumps(data, indent=4, sort_keys=True)
+        else:
+            return json.dumps(data)
