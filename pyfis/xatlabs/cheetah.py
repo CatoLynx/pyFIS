@@ -103,6 +103,10 @@ class xatLabsCheetah:
     def load_device_info(self):
         resp = requests.get(f"{self.host}/info/device.json")
         self.device_info = resp.json()
+    
+    def get_buffer_base64(self):
+        buf = bytearray(self.framebuf)
+        return base64.b64encode(buf).decode('ascii')
 
     def set_text(self, text):
         if self.display_info.get('type') != 'character':
@@ -124,8 +128,7 @@ class xatLabsCheetah:
 
     def d_update(self):
         # Compatibility function for SplitFlapDisplay class
-        buf = bytearray(self.framebuf)
-        buffer_b64 = base64.b64encode(buf).decode('ascii')
+        buffer_b64 = self.get_buffer_base64()
         requests.post(f"{self.host}/canvas/buffer.json", json={'buffer': buffer_b64})
 
     def get_splitflap_display(self):
