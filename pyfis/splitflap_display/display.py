@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import io
 import json
 import random
 import time
@@ -53,6 +54,36 @@ class SplitFlapDisplay:
     def __init__(self, backend):
         self.backend = backend
         self.check_address_collisions()
+    
+    @classmethod
+    def from_json(cls, json_data, backend):
+        # data can be a dict, open file or JSON string
+        if type(json_data) is dict:
+            data = json_data
+        elif isinstance(json_data, io.IOBase):
+            data = json.load(json_data)
+        else:
+            data = json.loads(json_data)
+        
+        units = data['units']
+        maps = data['maps']
+        display = SplitFlapDisplay(backend)
+        
+        for unit in units:
+            if unit['type'] == 'map':
+                _map = dict([(int(key), value) for key, value in maps[unit['map']].items()])
+                field = CustomMapField(
+                    display_mapping=_map,
+                    start_address=unit['addr'],
+                    length=unit['len'],
+                    x=unit['x'],
+                    y=unit['y'],
+                    module_width=unit['width'],
+                    module_height=unit['height'],
+                    home_pos=unit['home']
+                )
+                setattr(display, unit['name'], field)
+        return display
 
     def _group(self, data, key):
         sorted_data = sorted(data, key=key)
@@ -95,8 +126,8 @@ class SplitFlapDisplay:
     
     def check_address_collisions(self):
         """
-        Checks if any of the addresses used by the fields are occupied
-        by more than one field and raises an exception is necessary
+        Check if any of the addresses used by the fields are occupied
+        by more than one field and raise an exception if necessary
         """
         addresses = []
         for name, field in self.get_fields():
@@ -336,7 +367,7 @@ class SplitFlapDisplay:
                 'width': field.module_width,
                 'height': field.module_height,
                 'len': field.length,
-                'home_pos': field.home_pos,
+                'home': field.home_pos,
                 'map': map_name
             }
             data['units'].append(unit)

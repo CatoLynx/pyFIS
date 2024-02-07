@@ -131,19 +131,13 @@ class xatLabsCheetah:
     def get_splitflap_display(self):
         if self.display_info.get('type') != 'selection':
             raise NotImplementedError("Only selection displays support get_splitflap_display")
-        unit_data = self.display_info.get('config', {}).get('units')
+        config = self.display_info.get('config', {})
+        unit_data = config.get('units')
         if not unit_data:
             raise NotImplementedError("Display does not provide layout data")
-        map_data = self.display_info.get('config', {}).get('maps')
+        map_data = config.get('maps')
         if not map_data:
             raise NotImplementedError("Display does not provide mapping data")
 
-        display = SplitFlapDisplay(self)
-        for unit in unit_data:
-            if unit['type'] == 'map':
-                field = CustomMapField(map_data.get(unit.get('map', None), {}), start_address=unit['addr'], length=unit['len'], x=unit['x'], y=unit['y'], module_width=unit['width'], module_height=unit['height'], home_pos=unit['home'])
-                setattr(display, unit['name'], field)
-            elif unit['type'] == 'text':
-                field = TextField(start_address=unit['addr'], length=unit['len'], x=unit['x'], y=unit['y'], module_width=unit['width'], module_height=unit['height'], home_pos=unit['home'], display_mapping=map_data.get(unit.get('map', None), None))
-                setattr(display, unit['name'], field)
+        display = SplitFlapDisplay.from_json(config, self)
         return display
