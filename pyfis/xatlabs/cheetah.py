@@ -1,5 +1,5 @@
 """
-Copyright (C) 2023 Julian Metzler
+Copyright (C) 2023-2024 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,12 +34,15 @@ class xatLabsCheetah:
     - Selection-based displays (e.g. a rolling film or generic split-flap display)
     """
 
-    def __init__(self, host):
+    def __init__(self, host = None, display_info = None, device_info = None):
         self.host = host
-        self.display_info = None
-        self.device_info = None
-        self.load_display_info()
-        self.load_device_info()
+        self.display_info = display_info
+        self.device_info = device_info
+        if self.host is not None:
+            self.load_display_info()
+            self.load_device_info()
+        elif self.display_info is None or self.device_info is None:
+            raise ValueError("Either host or display_info and device_info must be given")
         self.init_framebuf()
 
     def init_framebuf(self):
