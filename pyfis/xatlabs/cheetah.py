@@ -115,15 +115,17 @@ class xatLabsCheetah:
         if self.display_info.get('type') != 'character':
             raise NotImplementedError("Only character displays support set_text")
         self.update_framebuf_text(text)
-        buf = bytearray(self.framebuf)
-        buffer_b64 = base64.b64encode(buf).decode('ascii')
-        requests.post(f"{self.host}/canvas/buffer.json", json={'buffer': buffer_b64})
+        if self.host is not None:
+            buf = bytearray(self.framebuf)
+            buffer_b64 = base64.b64encode(buf).decode('ascii')
+            requests.post(f"{self.host}/canvas/buffer.json", json={'buffer': buffer_b64})
 
     def set_brightness(self, brightness):
         if not self.display_info.get('brightness_control'):
             raise NotImplementedError("Display does not support brightness control")
         assert brightness in range(0, 256)
-        requests.post(f"{self.host}/canvas/brightness.json", json={'brightness': brightness})
+        if self.host is not None:
+            requests.post(f"{self.host}/canvas/brightness.json", json={'brightness': brightness})
 
     def d_set_module_data(self, module_data):
         # Compatibility function for SplitFlapDisplay class
@@ -131,8 +133,9 @@ class xatLabsCheetah:
 
     def d_update(self):
         # Compatibility function for SplitFlapDisplay class
-        buffer_b64 = self.get_buffer_base64()
-        requests.post(f"{self.host}/canvas/buffer.json", json={'buffer': buffer_b64})
+        if self.host is not None:
+            buffer_b64 = self.get_buffer_base64()
+            requests.post(f"{self.host}/canvas/buffer.json", json={'buffer': buffer_b64})
 
     def get_splitflap_display(self):
         if self.display_info.get('type') != 'selection':
