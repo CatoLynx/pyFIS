@@ -83,6 +83,19 @@ class SplitFlapDisplay:
                     home_pos=unit['home']
                 )
                 setattr(display, unit['name'], field)
+            elif unit['type'] == 'text':
+                _map = dict([(int(key), value) for key, value in maps[unit['map']].items()]) if 'map' in unit else None
+                field = TextField(
+                    display_mapping=_map,
+                    start_address=unit['addr'],
+                    length=unit['len'],
+                    x=unit['x'],
+                    y=unit['y'],
+                    module_width=unit['width'],
+                    module_height=unit['height'],
+                    home_pos=unit['home']
+                )
+                setattr(display, unit['name'], field)
         return display
 
     def _group(self, data, key):
