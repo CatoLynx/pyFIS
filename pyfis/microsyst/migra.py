@@ -196,7 +196,7 @@ class MigraTCP:
         if not escape and self.command_queue_enabled:
             # Separate non-escaped commands (texts) by 0x1F when queueing
             payload.append(0x1F)
-        payload.extend(command.encode('ascii'))
+        payload.extend(command.encode('ascii', 'replace'))
         if self.command_queue_enabled:
             self.command_queue.append(payload)
         else:

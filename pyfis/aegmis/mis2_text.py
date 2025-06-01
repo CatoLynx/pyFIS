@@ -45,7 +45,7 @@ class MIS2TextDisplay(MIS2Protocol):
         # Page 0xFF is the fallback page and will be saved permanently
         # Page 0xFE copies the page to all 10 slots
         text = self.merge_attributes(text)
-        text = text.encode("CP437")
+        text = text.encode("CP437", 'replace')
         data = [page, row, col_start >> 8, col_start & 0xFF, col_end >> 8, col_end & 0xFF, attrs] + list(text)
         return self.send_command(0x15, 0x00, data)
 

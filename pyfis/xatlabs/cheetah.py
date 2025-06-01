@@ -109,7 +109,7 @@ class xatLabsCheetah:
                 self.pixel_buffer[i] = 0
     
     def update_text_buffer(self, text):
-        characters = text.encode('iso-8859-1')
+        characters = text.encode('iso-8859-1', 'replace')
         for i in range(len(self.text_buffer)):
             if i < len(characters):
                 self.text_buffer[i] = characters[i]

@@ -54,13 +54,13 @@ class MIS1TextDisplay(MIS1Protocol):
 
     def simple_text(self, page, row, col, text, align = ALIGN_LEFT):
         text = self.merge_attributes(text)
-        text = text.encode("CP437")
+        text = text.encode("CP437", 'replace')
         data = [align, page, row, col] + list(text)
         return self.send_command(0x11, 0x00, data, expect_response=False)
 
     def text(self, page, row, col_start, col_end, text, align = ALIGN_LEFT):
         text = self.merge_attributes(text)
-        text = text.encode("CP437")
+        text = text.encode("CP437", 'replace')
         data = [align, page, row, col_start >> 8, col_start & 0xFF, col_end >> 8, col_end & 0xFF] + list(text)
         return self.send_command(0x15, 0x00, data, expect_response=False)
     

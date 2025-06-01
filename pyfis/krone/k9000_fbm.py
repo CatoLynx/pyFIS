@@ -159,7 +159,7 @@ class Krone9000FBM:
             text = text[:length].ljust(length)
         for i, char in enumerate(text):
             address = start_address - i if descending else start_address + i
-            self.set_code(address, ord(char.encode('iso-8859-1')))
+            self.set_code(address, ord(char.encode('iso-8859-1', 'replace')))
     
     def get_status(self, addr):
         return self._get_fbm_status(self.read_status(addr)[0])

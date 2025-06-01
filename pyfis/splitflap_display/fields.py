@@ -238,7 +238,7 @@ class TextField(BaseField):
         if self.display_mapping is not None:
             code = self.inverse_display_mapping.get(char, self.home_pos)
         else:
-            code = ord(char.encode('iso-8859-1'))
+            code = ord(char.encode('iso-8859-1', 'replace'))
         x = self.x + pos * self.module_width
         return addr, code, x, self.y
 

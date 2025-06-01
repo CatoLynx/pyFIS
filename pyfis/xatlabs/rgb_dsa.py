@@ -160,7 +160,7 @@ class xatLabsRGBDSAController:
         payload = []
 
         if type(text) in (list, tuple):
-            _text = "".join(d['text'] for d in text).encode("CP437")
+            _text = "".join(d['text'] for d in text).encode("CP437", 'replace')
             _segments = []
             pos = 0
             for i, t in enumerate(text):
