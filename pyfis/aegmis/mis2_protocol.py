@@ -1,5 +1,5 @@
 """
-Copyright (C) 2021-2023 Julian Metzler
+Copyright (C) 2021-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,9 +23,10 @@ from ..utils.base_serial import BaseSerialPort
 
 
 class MIS2Protocol:
-    def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False):
+    def __init__(self, port, address = 1, baudrate = 9600, exclusive = True, debug = False, encoding_errors = "strict"):
         self.address = address
         self.debug = debug
+        self.encoding_errors = encoding_errors
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:

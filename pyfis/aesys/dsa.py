@@ -1,5 +1,5 @@
 """
-Copyright (C) 2023 Julian Metzler
+Copyright (C) 2023-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@ import serial
 
 
 class AesysDSA:
-    def __init__(self, port, exclusive=True, debug=False):
+    def __init__(self, port, exclusive=True, debug=False, encoding_errors="strict"):
         self.port = port
         self.debug = debug
         self.exclusive = exclusive
+        self.encoding_errors = encoding_errors
         self.open()
     
     def open(self):
@@ -41,7 +42,7 @@ class AesysDSA:
         data = "\x01\x17P000060{text}".format(text=text)
         length = len(data)
         frame = "\x02AVIS{length:04X}{data}\x03".format(length=length, data=data)
-        frame = frame.encode('cp850')
+        frame = frame.encode('cp850', errors=self.encoding_errors)
         frame = self._checksum(frame)
         if self.debug:
             print(frame)

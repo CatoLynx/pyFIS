@@ -1,5 +1,5 @@
 """
-Copyright (C) 2023 Julian Metzler
+Copyright (C) 2023-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ class VistraI:
     EFFECT3_WINDOW_INVERTED = 0x40
     EFFECT3_INVERTED = 0x50
     
-    def __init__(self, hostname, port, address = 0, timeout = 5.0):
+    def __init__(self, hostname, port, address = 0, timeout = 5.0, encoding_errors = "replace"):
         """
         hostname:
         The network hostname of the display to connect to
@@ -63,12 +63,19 @@ class VistraI:
         
         address:
         The panel address (0 for all panels, only useful for RS232)
+        
+        timeout:
+        Timeout for socket connection in seconds
+        
+        encoding_errors:
+        Which error handler to use in case of encoding errors
         """
         
         self.hostname = hostname
         self.port = port
         self.address = address
         self.timeout = timeout
+        self.encoding_errors = encoding_errors
         self.crc = crcmod.predefined.mkPredefinedCrcFun('crc-ccitt-false')
         self.queue = None
         self.socket = None
@@ -219,7 +226,7 @@ class VistraI:
             ])
             data = m.get('data', bytearray())
             if type(data) is str:
-                data = data.encode('latin-1', 'replace')
+                data = data.encode('latin-1', errors=self.encoding_errors)
             msg += bytearray(data)
             msg = self.wrap_partial_message(msg)
             complete_message += msg

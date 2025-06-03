@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020 Julian Metzler
+Copyright (C) 2020-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ class MigraTCP:
     TRIG_HISTORY = "#"
     TRIGGER_MODES = (TRIG_NORMAL, TRIG_HISTORY)
     
-    def __init__(self, host, port=10001, timeout=2.0, debug=False):
+    def __init__(self, host, port=10001, timeout=2.0, debug=False, errors=self.encoding_errors):
         """
         host:
           The hostname or IP to connect to
@@ -59,6 +59,7 @@ class MigraTCP:
         """
         
         self.debug = debug
+        self.encoding_errors = encoding_errors
         self.command_queue_enabled = False
         self.command_queue = []
         
@@ -196,7 +197,7 @@ class MigraTCP:
         if not escape and self.command_queue_enabled:
             # Separate non-escaped commands (texts) by 0x1F when queueing
             payload.append(0x1F)
-        payload.extend(command.encode('ascii'))
+        payload.extend(command.encode('ascii', errors=self.encoding_errors))
         if self.command_queue_enabled:
             self.command_queue.append(payload)
         else:

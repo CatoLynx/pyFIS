@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020-2023 Julian Metzler
+Copyright (C) 2020-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,11 +48,12 @@ class MIS1Protocol:
         255: "EGENERAL"
     }
 
-    def __init__(self, port, address=1, baudrate=9600, exclusive=True, debug=False, rx_timeout=3.0, use_rts=True):
+    def __init__(self, port, address=1, baudrate=9600, exclusive=True, debug=False, rx_timeout=3.0, use_rts=True, encoding_errors="strict"):
         self.address = address
         self.debug = debug
         self.rx_timeout = rx_timeout
         self.use_rts = use_rts
+        self.encoding_errors = encoding_errors
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:

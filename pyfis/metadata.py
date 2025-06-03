@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020-2023 Julian Metzler
+Copyright (C) 2020-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 name = "pyFIS"
-version = "1.13.0"
+version = "1.13.1"
 description = "A library for controlling devices in the passenger information realm"
 license = "GPLv3"
 author = "Julian Metzler"

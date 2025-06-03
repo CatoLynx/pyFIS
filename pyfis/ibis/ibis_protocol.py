@@ -1,5 +1,5 @@
 """
-Copyright (C) 2016 - 2020 Julian Metzler
+Copyright (C) 2016 - 2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,13 +22,17 @@ class IBISProtocol:
     All the logic related to the IBIS protocol
     """
     
-    def __init__(self, debug = False):
+    def __init__(self, debug = False, encoding_errors = "replace"):
         """
         debug:
         Whether to print the sent and received telegrams
+        
+        encoding_errors:
+        Which error handler to use in case of encoding errors
         """
         
         self.debug = debug
+        self.encoding_errors = encoding_errors
         
         # Simple telegram definitions
         self.DS001 = self._tg("l{:>03}")        # Line number, 1-4 digits
@@ -121,7 +125,7 @@ class IBISProtocol:
         telegram = telegram.replace("Ä", "[")
         telegram = telegram.replace("Ö", "\\")
         telegram = telegram.replace("Ü", "]")
-        telegram = telegram.encode('ascii', errors = 'replace')
+        telegram = telegram.encode('ascii', errors=self.encoding_errors)
         return telegram
     
     def wrap_telegram(self, telegram):

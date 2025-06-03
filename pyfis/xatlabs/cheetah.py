@@ -1,5 +1,5 @@
 """
-Copyright (C) 2023-2024 Julian Metzler
+Copyright (C) 2023-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,10 +36,11 @@ class xatLabsCheetah:
     - Selection-based displays (e.g. a rolling film or generic split-flap display)
     """
 
-    def __init__(self, host = None, display_info = None, device_info = None):
+    def __init__(self, host = None, display_info = None, device_info = None, encoding_errors = "strict"):
         self.host = host
         self.display_info = display_info
         self.device_info = device_info
+        self.encoding_errors = encoding_errors
         if self.host is not None:
             self.load_display_info()
             self.load_device_info()
@@ -109,7 +110,7 @@ class xatLabsCheetah:
                 self.pixel_buffer[i] = 0
     
     def update_text_buffer(self, text):
-        characters = text.encode('iso-8859-1')
+        characters = text.encode('iso-8859-1', errors=self.encoding_errors)
         for i in range(len(self.text_buffer)):
             if i < len(characters):
                 self.text_buffer[i] = characters[i]

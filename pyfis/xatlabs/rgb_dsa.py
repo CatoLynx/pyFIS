@@ -1,5 +1,5 @@
 """
-Copyright (C) 2021 Julian Metzler
+Copyright (C) 2021-2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -53,8 +53,9 @@ class xatLabsRGBDSAController:
 
     SCROLL       = 0b00000001
 
-    def __init__(self, port, debug = False, exclusive = True, no_dtr = False):
+    def __init__(self, port, debug = False, exclusive = True, no_dtr = False, encoding_errors = "strict"):
         self.debug = debug
+        self.encoding_errors = encoding_errors
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
@@ -160,7 +161,7 @@ class xatLabsRGBDSAController:
         payload = []
 
         if type(text) in (list, tuple):
-            _text = "".join(d['text'] for d in text).encode("CP437")
+            _text = "".join(d['text'] for d in text).encode("CP437", errors=self.encoding_errors)
             _segments = []
             pos = 0
             for i, t in enumerate(text):
@@ -183,7 +184,7 @@ class xatLabsRGBDSAController:
                     _segments.append(seg)
                 pos += len(t['text'])
         else:
-            _text = str(text).encode("CP437")
+            _text = str(text).encode("CP437", errors=self.encoding_errors)
             _segments = []
 
         payload.extend([slot, len(text) >> 8, len(_text) & 0xFF, attrs, duration >> 8, duration & 0xFF])

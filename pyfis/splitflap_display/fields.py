@@ -1,5 +1,5 @@
 """
-Copyright (C) 2019 - 2020 Julian Metzler
+Copyright (C) 2019 - 2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -207,9 +207,10 @@ class MirrorField(BaseField):
 
 
 class TextField(BaseField):
-    def __init__(self, *args, value = "", upper_only = True, **kwargs):
+    def __init__(self, *args, value = "", upper_only = True, encoding_errors = "strict", **kwargs):
         super().__init__(*args, **kwargs)
         self.upper_only = upper_only
+        self.encoding_errors = encoding_errors
         self.set(value)
     
     def set(self, value):
@@ -238,7 +239,7 @@ class TextField(BaseField):
         if self.display_mapping is not None:
             code = self.inverse_display_mapping.get(char, self.home_pos)
         else:
-            code = ord(char.encode('iso-8859-1'))
+            code = ord(char.encode('iso-8859-1', errors=self.encoding_errors))
         x = self.x + pos * self.module_width
         return addr, code, x, self.y
 

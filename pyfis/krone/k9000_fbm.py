@@ -1,5 +1,5 @@
 """
-Copyright 2020 - 2023 Julian Metzler
+Copyright 2020 - 2025 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -67,8 +67,9 @@ class Krone9000FBM:
                 errors.append("no_home_imp")
             return errors
 
-    def __init__(self, port, debug = False, exclusive = True):
+    def __init__(self, port, debug = False, exclusive = True, encoding_errors = "strict"):
         self.debug = debug
+        self.encoding_errors = encoding_errors
         if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.port = port
         else:
@@ -159,7 +160,7 @@ class Krone9000FBM:
             text = text[:length].ljust(length)
         for i, char in enumerate(text):
             address = start_address - i if descending else start_address + i
-            self.set_code(address, ord(char.encode('iso-8859-1')))
+            self.set_code(address, ord(char.encode('iso-8859-1', errors=self.encoding_errors)))
     
     def get_status(self, addr):
         return self._get_fbm_status(self.read_status(addr)[0])
