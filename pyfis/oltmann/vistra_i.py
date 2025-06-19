@@ -226,7 +226,7 @@ class VistraI:
             ])
             data = m.get('data', bytearray())
             if type(data) is str:
-                data = data.encode('latin-1', errors=self.encoding_errors)
+                data = data.encode('cp1250', errors=self.encoding_errors)
             msg += bytearray(data)
             msg = self.wrap_partial_message(msg)
             complete_message += msg
