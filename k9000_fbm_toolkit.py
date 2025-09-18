@@ -1,5 +1,6 @@
 import argparse
 import sys
+import time
 
 from pyfis.krone import Krone9000FBM
 from pyfis.krone.util import calibrate_fbm_interactive
@@ -47,7 +48,7 @@ def main():
         table = None
     
     while True:
-        data = input("What to do? [Code/Status/Letter/Text/Home/WrtTbl/DelTbl/caliBrate/Exit] ").upper()
+        data = input("What to do? [Code/Status/Letter/Text/Home/Wrttbl/Deltbl/caliBrate/Autotest/Exit] ").upper()
         fbm.port.read(fbm.port.inWaiting()) # Flush buffer
         if not data:
             continue
@@ -115,6 +116,50 @@ def main():
                 print("  Calibration is only possible for address 0!")
                 continue
             calibrate_fbm_interactive(fbm, addr)
+        elif action == "A":
+            print("  Performing test routine")
+
+            def _expect_code(code):
+                for i in range(20):
+                    time.sleep(0.5)
+                    status = ", ".join(fbm.get_status(addr) or ["OK"])
+                    print(f"      Status: {status}")
+                    if status == "OK":
+                        break
+                    elif i == 19:
+                        print("      Error: Incorrect status!")
+                        return False
+                actual_code = fbm.read_code(addr)
+                if len(actual_code) < 1:
+                    print("      No data received!")
+                    return False
+                actual_code = actual_code[0]
+                if actual_code != code:
+                    print(f"      Error: FBM reports code 0x{actual_code:02X} ({actual_code}, letter {chr(actual_code)}) instead of 0x{code:02X} ({code}, letter {chr(code)})")
+                    return False
+                return True
+
+            result = False
+            for letter in ("0", "A", "M", "Z", "="):
+                print(f"    Rotating to letter {letter}")
+                fbm.set_code(addr, ord(letter))
+                fbm.set_all()
+                result = _expect_code(ord(letter))
+                if not result:
+                    break
+                else:
+                    print(f"      Success")
+                time.sleep(1)
+            if not result:
+                continue
+
+            print("    Rotating to home position")
+            fbm.set_home()
+            result = _expect_code(0x20)
+            if not result:
+                continue
+            else:
+                print(f"      Success")
         elif action == "E":
             break
         
