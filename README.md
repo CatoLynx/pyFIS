@@ -26,7 +26,7 @@ This library currently supports the following devices:
   * Oltmann VISTRA-I passenger information displays
   * aesys DSA (single-line text displays found at smaller German train stations)
   * microSYST migra industrial LED signs using TCP/IP
-  * mobitec matrix displays
+  * mobitec matrix displays using the proprietary mobitec RS485 protocol
   * My own "Cheetah" universal display controller
   * My own very basic and generic split-flap interface protocol (you can use this to interface with any split-flap type display)
   * My own protocol for controlling a single-line scrolling RGB text display
