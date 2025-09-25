@@ -16,11 +16,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 name = "pyFIS"
-version = "1.14.0"
+version = "1.14.1"
 description = "A library for controlling devices in the passenger information realm"
 license = "GPLv3"
 author = "Julian Metzler"
 author_email = "git@mezgr.de"
-requires = ['pyserial']
+requires = ['pyserial', 'crccheck', 'crcmod']
+extras_require = {
+    'full': ['pillow', 'requests', 'RPi.GPIO'],
+    'http': ['requests'],
+    'graphics': ['pillow'],
+    'raspberrypi': ['RPi.GPIO']
+}
 url = "https://github.com/Mezgrman/pyFIS"
 keywords = "led sign message board effect library wrapper serial text display ibis vdv300 bus next stop train mono lawo splitflap industrial factory"

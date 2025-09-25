@@ -104,4 +104,10 @@ OMEGA split-flap unit with RS-485 and DC input, commonly found in SBB (Swiss tra
 
 
 # Installation
-`pip install pyfis`
+The base package can be installed with `pip install pyfis`. It installs pyFIS, the `serial` package as well as `crccheck` and `crcmod` for calculating and verifying checksums.
+
+Some parts of the library have extra dependencies:
+* The Fraport data source and the xatLabs Cheetah module require the `requests` package for performing HTTP requests. Install with `pip install pyfis[http]`.
+* All graphical displays require `Pillow` for handling graphics. Install with `pip install pyfis[graphics]`.
+* The `rpi_gpio` backend used for KRONE 8200 split-flap displays requires the `RPi.GPIO` package to run on a Raspberry Pi. Install with `pip install pyfis[raspberrypi]`.
+* To install all optional dependencies, run `pip install pyfis[full]`.

@@ -12,6 +12,7 @@ setup(
 	author = metadata['author'],
 	author_email = metadata['author_email'],
 	install_requires = metadata['requires'],
+	extras_require = metadata['extras_require'],
 	url = metadata['url'],
 	keywords = metadata['keywords'],
 	packages = find_packages(),
