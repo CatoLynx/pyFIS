@@ -235,6 +235,7 @@ class IBISProtocol:
         return self.send_telegram("zA{}{}"
             .format(self.vdv_hex(num_blocks), text.ljust(num_blocks*16)))
     
+    # TODO: Implement special characters (LF.BCC???)
     def DS003aUESTRA(self, front_text, side_text = "", line_text = "",
         display_line_text_front = True, display_line_text_side = True,
         display_interval_front = 3.0, display_interval_side = 3.0,
@@ -307,10 +308,29 @@ class IBISProtocol:
                     is_lower = False
                 if char == "\n":
                     is_lower = False
-                ret_text += char.upper()
+                if ord(char) in range(0x80, 0x100):
+                    ret_text += char
+                else:
+                    ret_text += char.upper()
             if is_lower:
                 # Make sure we are back to upper
                 ret_text += chr(0x06)
+            return ret_text
+
+        def _insert_range_switch_control_chars(text):
+            """
+            Insert the range-switching control characters 0x01 and 0x02 in the given text
+            to switch between charset ranges 0x80 to 0xBF (with 0x01)
+            and 0xC0 to 0xFF (with 0x02)
+            """
+            ret_text = ""
+            for char in text:
+                if ord(char) in range(0x80, 0xC0):
+                    ret_text += chr(0x01) + chr(ord(char) - 0x60)
+                elif ord(char) in range(0xC0, 0x100):
+                    ret_text += chr(0x02) + chr(ord(char) - 0xA0)
+                else:
+                    ret_text += char
             return ret_text
         
         def _array_to_byte(array):
@@ -343,9 +363,9 @@ class IBISProtocol:
         display_interval_side = min(display_interval_side, 8.5)
         display_interval_side = round(display_interval_side * 2) - 2 # 0 to 15
         
-        front_text_lines = [a + [""] * (2-len(a)) for a in [_insert_case_switch_control_chars(t).splitlines() for t in front_text]]
-        side_text_lines = [a + [""] * (2-len(a)) for a in [_insert_case_switch_control_chars(t).splitlines() for t in side_text]]
-        line_text = _insert_case_switch_control_chars(line_text)
+        front_text_lines = [a + [""] * (2-len(a)) for a in [_insert_range_switch_control_chars(_insert_case_switch_control_chars(t)).splitlines() for t in front_text]]
+        side_text_lines = [a + [""] * (2-len(a)) for a in [_insert_range_switch_control_chars(_insert_case_switch_control_chars(t)).splitlines() for t in side_text]]
+        line_text = _insert_range_switch_control_chars(_insert_case_switch_control_chars(line_text))
         
         data = ""
         for lines in front_text_lines:
