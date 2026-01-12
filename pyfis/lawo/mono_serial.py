@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020 Julian Metzler
+Copyright (C) 2020-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 
 from .mono_protocol import MONOProtocol
+from ..utils.base_serial import BaseSerialPort
+
 
 class SerialMONOMaster(MONOProtocol):
     """
@@ -33,13 +35,11 @@ class SerialMONOMaster(MONOProtocol):
         
         super().__init__(*args, **kwargs)
         
-        if isinstance(port, serial.Serial):
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.device = port
-            self.port = self.device.port
         else:
-            self.port = port
             self.device = serial.Serial(
-                self.port,
+                port,
                 baudrate = baudrate,
                 bytesize = bytesize,
                 parity = parity,

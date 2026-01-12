@@ -1,5 +1,5 @@
 """
-Copyright (C) 2022 Julian Metzler
+Copyright (C) 2022-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class BaseSerialPort:
     def __init__(self):
         pass
+    
+    def open(self):
+        raise NotImplementedError
+    
+    def close(self):
+        raise NotImplementedError
 
     def write(self, data):
         raise NotImplementedError

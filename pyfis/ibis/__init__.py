@@ -1,5 +1,5 @@
 """
-Copyright (C) 2016 - 2020 Julian Metzler
+Copyright (C) 2016-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,5 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from .ibis_master import IBISMaster
 from .ibis_serial import SerialIBISMaster
 from .ibis_tcp import TCPIBISMaster

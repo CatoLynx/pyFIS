@@ -1,5 +1,5 @@
 """
-Copyright (C) 2025 Julian Metzler
+Copyright (C) 2025-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 
 from ..utils import debug_hex, high16, low16
+from ..utils.base_serial import BaseSerialPort
 
 
 class MobitecMatrix:
@@ -52,23 +53,15 @@ class MobitecMatrix:
     EFFECT_CENTER_SCROLL_RTL_CENTER = 0x12 # Centered text and then same text scrolled to centered from right
 
     def __init__(self, port, address, exclusive=True, debug=False, encoding_errors="strict"):
-        self.port = port
         self.address = address
         self.debug = debug
         self.exclusive = exclusive
         self.encoding_errors = encoding_errors
-        self.open()
-    
-    def open(self):
-        if isinstance(self.port, serial.Serial):
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
             self.device = port
-            self.port = self.device.port
         else:
-            self.device = serial.Serial(self.port,
+            self.device = serial.Serial(port,
                 baudrate=4800, bytesize=8, parity='N', stopbits=1, timeout=1.0, exclusive=self.exclusive)
-    
-    def close(self):
-        self.device.close()
     
     def make_checksum(self, data):
         checksum_bytes = bytearray()

@@ -1,5 +1,5 @@
 """
-Copyright (C) 2022 Julian Metzler
+Copyright (C) 2022-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,9 +26,17 @@ class TcpSerialPort(BaseSerialPort):
         port: The TCP port to use for communication
         timeout: The socket timeout in seconds
         """
+        self.host = host
+        self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((host, port))
         self.socket.settimeout(timeout)
+        self.open()
+    
+    def open(self):
+        self.socket.connect((self.host, self.port))
+    
+    def close(self):
+        self.socket.close()
 
     def write(self, data):
         return self.socket.send(bytearray(data))

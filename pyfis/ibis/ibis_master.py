@@ -1,5 +1,5 @@
 """
-Copyright (C) 2016-2026 Julian Metzler
+Copyright (C) 2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,36 +15,38 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import socket
-import warnings
+import serial
 
 from .ibis_protocol import IBISProtocol
+from ..utils.base_serial import BaseSerialPort
 
 
-class TCPIBISMaster(IBISProtocol):
+class IBISMaster(IBISProtocol):
     """
-    An IBIS master using TCP instead of serial
+    An IBIS bus master, sending and receiving telegrams. Defaults to serial port backend.
     """
     
-    def __init__(self, host, port, timeout = 2.0, *args, **kwargs):
+    def __init__(self, port, baudrate = 1200, bytesize = 7, parity = 'E',
+                 stopbits = 2, timeout = 2.0, exclusive = True, *args, **kwargs):
         """
-        host:
-        The hostname or IP to connect to
-        
         port:
-        The TCP port to use for communication
-        
-        timeout:
-        The socket timeout in seconds
+        The serial port to use for communication
         """
-        
-        warnings.warn("TCPIBISMaster is deprecated. Use IBISMaster with an instance of pyfis.utils.TcpSerialPort instead. TCPIBISMaster will be removed in the future.", FutureWarning)
         
         super().__init__(*args, **kwargs)
         
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((host, port))
-        self.socket.settimeout(timeout)
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
+            self.device = port
+        else:
+            self.device = serial.Serial(
+                port,
+                baudrate = baudrate,
+                bytesize = bytesize,
+                parity = parity,
+                stopbits = stopbits,
+                timeout = timeout,
+                exclusive=exclusive
+            )
     
     def _send(self, telegram):
         """
@@ -52,7 +54,7 @@ class TCPIBISMaster(IBISProtocol):
         This varies depending on implementation
         """
         
-        self.socket.send(telegram)
+        self.device.write(telegram)
     
     def _receive(self, length):
         """
@@ -60,7 +62,7 @@ class TCPIBISMaster(IBISProtocol):
         This varies depending on implementation and needs to be overridden
         """
         
-        return self.socket.recv(length)
+        return self.device.read(length)
 
     def __del__(self):
-        self.socket.close()
+        self.device.close()

@@ -1,5 +1,5 @@
 """
-Copyright (C) 2023-2025 Julian Metzler
+Copyright (C) 2023-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,22 +16,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import serial
+from ..utils.base_serial import BaseSerialPort
 
 
 class AesysDSA:
     def __init__(self, port, exclusive=True, debug=False, encoding_errors="strict"):
-        self.port = port
         self.debug = debug
         self.exclusive = exclusive
         self.encoding_errors = encoding_errors
-        self.open()
-    
-    def open(self):
-        self.device = serial.Serial(self.port,
+        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
+            self.device = port
+        else:
+            self.device = serial.Serial(port,
             baudrate=9600, bytesize=8, parity='N', stopbits=1, exclusive=self.exclusive)
-    
-    def close(self):
-        self.device.close()
     
     def _checksum(self, data):
         checksum = sum(data)

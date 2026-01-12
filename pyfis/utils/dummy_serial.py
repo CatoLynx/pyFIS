@@ -1,5 +1,5 @@
 """
-Copyright (C) 2022 Julian Metzler
+Copyright (C) 2022-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,12 @@ from .base_serial import BaseSerialPort
 
 
 class DummySerialPort(BaseSerialPort):
+    def open(self):
+        pass
+    
+    def close(self):
+        pass
+    
     def write(self, data):
         pass
 
