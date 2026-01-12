@@ -1,5 +1,5 @@
 """
-Copyright (C) 2021-2026 Julian Metzler
+Copyright (C) 2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,7 +15,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from .utils import *
-from .tcp_serial import TcpSerialPort
-from .dummy_serial import DummySerialPort
-from .micropython_serial import MicropythonSerialPort
+from machine import UART
+
+
+class MicropythonSerialPort(BaseSerialPort):
+    def __init__(self, port, baudrate, **kwargs):
+        self.baudrate = baudrate
+        self.device_kwargs = kwargs
+        self.device = UART(port)
+        self.open()
+    
+    def open(self):
+        self.device.init(self.baudrate, **self.device_kwargs)
+    
+    def close(self):
+        self.device.deinit()
+
+    def write(self, data):
+        return self.device.write(data)
+
+    def read(self, length):
+        return self.device.read(length)
