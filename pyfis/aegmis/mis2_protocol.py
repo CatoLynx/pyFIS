@@ -1,5 +1,5 @@
 """
-Copyright (C) 2021-2025 Julian Metzler
+Copyright (C) 2021-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,11 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
 import time
 
-from ..utils import debug_hex
-from ..utils.base_serial import BaseSerialPort
+from ..utils.printing import debug_hex
+from ..utils.serial import ensure_serial_port
 
 
 class MIS2Protocol:
@@ -27,10 +26,7 @@ class MIS2Protocol:
         self.address = address
         self.debug = debug
         self.encoding_errors = encoding_errors
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.port = port
-        else:
-            self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
+        self.port = ensure_serial_port(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
 
     def checksum(self, data):
         checksum = 0x00

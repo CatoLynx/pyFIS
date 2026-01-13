@@ -1,5 +1,5 @@
 """
-Copyright (C) 2022 Julian Metzler
+Copyright (C) 2022-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,11 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import math
-import serial
 import time
 
 from .mis1_text import MIS1TextDisplay
-from ..utils.base_serial import BaseSerialPort
+from ..utils.serial import ensure_serial_port
 
 
 class MIS1Board:
@@ -43,10 +42,7 @@ class MIS1Board:
         self.num_rows = num_rows
         self.rows_per_gcu = rows_per_gcu
         
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.port = port
-        else:
-            self.port = serial.Serial(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
+        self.port = ensure_serial_port(port, baudrate=baudrate, bytesize=8, parity="E", stopbits=1, exclusive=exclusive)
             
         self.num_gcus = math.ceil(num_rows / rows_per_gcu)
         self.gcus = []

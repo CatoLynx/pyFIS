@@ -15,10 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
-
 from .ibis_protocol import IBISProtocol
-from ..utils.base_serial import BaseSerialPort
+from ..utils.serial import ensure_serial_port
 
 
 class IBISMaster(IBISProtocol):
@@ -34,19 +32,13 @@ class IBISMaster(IBISProtocol):
         """
         
         super().__init__(*args, **kwargs)
-        
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.device = port
-        else:
-            self.device = serial.Serial(
-                port,
-                baudrate = baudrate,
-                bytesize = bytesize,
-                parity = parity,
-                stopbits = stopbits,
-                timeout = timeout,
-                exclusive=exclusive
-            )
+        self.device = ensure_serial_port(port,
+            baudrate = baudrate,
+            bytesize = bytesize,
+            parity = parity,
+            stopbits = stopbits,
+            timeout = timeout,
+            exclusive=exclusive)
     
     def _send(self, telegram):
         """

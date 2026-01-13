@@ -1,5 +1,5 @@
 """
-Copyright 2020 - 2025 Julian Metzler
+Copyright 2020-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,11 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
 import time
 
-from ..utils.base_serial import BaseSerialPort
-from ..utils.utils import _debug_print, debug_hex
+from ..utils.serial import ensure_serial_port
+from ..utils.printing import _debug_print, debug_hex
 
 
 class Krone9000FBM:
@@ -70,10 +69,7 @@ class Krone9000FBM:
     def __init__(self, port, debug = False, exclusive = True, encoding_errors = "strict"):
         self.debug = debug
         self.encoding_errors = encoding_errors
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.port = port
-        else:
-            self.port = serial.Serial(port, baudrate=4800, parity=serial.PARITY_EVEN, timeout=2.0, exclusive=exclusive)
+        self.port = ensure_serial_port(port, baudrate=4800, parity='E', timeout=2.0, exclusive=exclusive)
     
     def send_command(self, command, address = None, code = None, position = None, num_response_bytes = 0):
         # Build base command byte

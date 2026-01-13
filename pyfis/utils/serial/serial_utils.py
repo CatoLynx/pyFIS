@@ -15,24 +15,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from machine import UART
+from .base_serial import BaseSerialPort
+from .serial import SerialPort
+
+try:
+    import serial
+    has_serial = True
+except ImportError:
+    has_serial = False
 
 
-class MicropythonSerialPort(BaseSerialPort):
-    def __init__(self, port, baudrate, **kwargs):
-        self.baudrate = baudrate
-        self.device_kwargs = kwargs
-        self.device = UART(port)
-        self.open()
-    
-    def open(self):
-        self.device.init(self.baudrate, **self.device_kwargs)
-    
-    def close(self):
-        self.device.deinit()
+def is_serial_port(port):
+    if has_serial:
+        return isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort)
+    else:
+        return isinstance(port, BaseSerialPort)
 
-    def write(self, data):
-        return self.device.write(data)
-
-    def read(self, length):
-        return self.device.read(length)
+def ensure_serial_port(port, *args, **kwargs):
+    if is_serial_port(port):
+        return port
+    else:
+        return SerialPort(port, *args, **kwargs)

@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020 - 2023 Julian Metzler
+Copyright (C) 2020-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,10 +15,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
 import time
 
-from ..utils.base_serial import BaseSerialPort
+from ..utils.serial import ensure_serial_port
 
 
 class OmegaRS485Controller:
@@ -29,10 +28,7 @@ class OmegaRS485Controller:
 
     def __init__(self, port, debug = False, exclusive = True):
         self.debug = debug
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.port = port
-        else:
-            self.port = serial.Serial(port, baudrate=19200, timeout=1.0, exclusive=exclusive)
+        self.port = ensure_serial_port(port, baudrate=19200, timeout=1.0, exclusive=exclusive)
 
     def prepare_message(self, address, command, value):
         message = [0xFF, command, address]

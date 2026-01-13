@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020-2025 Julian Metzler
+Copyright (C) 2020-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,13 +15,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
 import time
 
 from .mis1_protocol import MIS1Protocol
 
-from ..utils import debug_hex
-from ..utils.base_serial import BaseSerialPort
+from ..utils.printing import debug_hex
 
 
 class MIS1TextDisplay(MIS1Protocol):

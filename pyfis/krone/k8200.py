@@ -1,5 +1,5 @@
 """
-Copyright 2019 - 2023 Julian Metzler
+Copyright 2019-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,11 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
 import time
 
 from .exceptions import CommunicationError
-from ..utils.base_serial import BaseSerialPort
+from ..utils.serial import ensure_serial_port
 
 
 class Krone8200Display:
@@ -66,10 +65,7 @@ class Krone8200Display:
         """
         self.debug = debug
         self.is_board = is_board
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.port = port
-        else:
-            self.port = serial.Serial(port, baudrate=2400, timeout=1.0, exclusive=exclusive)
+        self.port = ensure_serial_port(port, baudrate=2400, timeout=1.0, exclusive=exclusive)
         # To enable receiving responses (DTR coupled to Rx via optocoupler)
         self.port.setDTR(1)
         # Set Rx address

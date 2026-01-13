@@ -15,8 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
-from ..utils.base_serial import BaseSerialPort
+from ..utils.serial import ensure_serial_port
 
 
 class AesysDSA:
@@ -24,10 +23,7 @@ class AesysDSA:
         self.debug = debug
         self.exclusive = exclusive
         self.encoding_errors = encoding_errors
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.device = port
-        else:
-            self.device = serial.Serial(port,
+        self.device = ensure_serial_port(port,
             baudrate=9600, bytesize=8, parity='N', stopbits=1, exclusive=self.exclusive)
     
     def _checksum(self, data):

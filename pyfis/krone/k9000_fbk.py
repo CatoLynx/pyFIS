@@ -1,5 +1,5 @@
 """
-Copyright (C) 2019 - 2020 Julian Metzler
+Copyright (C) 2019-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
-import serial
 
 from itertools import groupby
 

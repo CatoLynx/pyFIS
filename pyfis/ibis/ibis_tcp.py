@@ -38,7 +38,7 @@ class TCPIBISMaster(IBISProtocol):
         The socket timeout in seconds
         """
         
-        warnings.warn("TCPIBISMaster is deprecated. Use IBISMaster with an instance of pyfis.utils.TcpSerialPort instead. TCPIBISMaster will be removed in the future.", FutureWarning)
+        warnings.warn("TCPIBISMaster is deprecated. Use IBISMaster with an instance of pyfis.utils.serial.TcpSerialPort instead. TCPIBISMaster will be removed in the future.", FutureWarning)
         
         super().__init__(*args, **kwargs)
         

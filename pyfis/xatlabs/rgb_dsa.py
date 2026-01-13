@@ -1,5 +1,5 @@
 """
-Copyright (C) 2021-2025 Julian Metzler
+Copyright (C) 2021-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,13 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import serial
 import time
 
 from pprint import pprint
 
 from .exceptions import CommunicationError
-from ..utils.base_serial import BaseSerialPort
+from ..utils.serial import ensure_serial_port
 
 
 class xatLabsRGBDSAController:
@@ -56,17 +55,10 @@ class xatLabsRGBDSAController:
     def __init__(self, port, debug = False, exclusive = True, no_dtr = False, encoding_errors = "strict"):
         self.debug = debug
         self.encoding_errors = encoding_errors
-        if isinstance(port, serial.Serial) or isinstance(port, BaseSerialPort):
-            self.port = port
-        else:
-            self.port = serial.Serial()
-            self.port.port = port
-            self.port.baudrate = 115200
-            self.port.timeout = 2.0
-            self.port.exclusive = exclusive
-            if no_dtr:
-                self.port.setDTR(False)
-            self.port.open()
+        self.port = ensure_serial_port(port, baudrate=115200, timeout=2.0, exclusive=exclusive)
+        # TODO: Possibly incorrect - might have to be done before opening the port
+        if no_dtr:
+            self.port.setDTR(False)
 
     def debug_message(self, message):
         """
