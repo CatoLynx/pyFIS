@@ -16,7 +16,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import socket
-import warnings
+
+try:
+    import warnings
+    has_warnings = True
+except ImportError:
+    has_warnings = False
 
 from .ibis_protocol import IBISProtocol
 
@@ -38,7 +43,8 @@ class TCPIBISMaster(IBISProtocol):
         The socket timeout in seconds
         """
         
-        warnings.warn("TCPIBISMaster is deprecated. Use IBISMaster with an instance of pyfis.utils.serial.TcpSerialPort instead. TCPIBISMaster will be removed in the future.", FutureWarning)
+        if has_warnings:
+            warnings.warn("TCPIBISMaster is deprecated. Use IBISMaster with an instance of pyfis.utils.serial.TcpSerialPort instead. TCPIBISMaster will be removed in the future.", FutureWarning)
         
         super().__init__(*args, **kwargs)
         

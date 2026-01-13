@@ -15,12 +15,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import warnings
+try:
+    import warnings
+    has_warnings = True
+except ImportError:
+    has_warnings = False
 
 from .ibis_master import IBISMaster
 
 
 class SerialIBISMaster(IBISMaster):
     def __init__(self, *args, **kwargs):
-        warnings.warn("SerialIBISMaster is deprecated. Use IBISMaster instead. SerialIBISMaster will be removed in the future.", FutureWarning)
+        if has_warnings:
+            warnings.warn("SerialIBISMaster is deprecated. Use IBISMaster instead. SerialIBISMaster will be removed in the future.", FutureWarning)
         super().__init__(*args, **kwargs)
