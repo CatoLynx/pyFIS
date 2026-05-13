@@ -1,5 +1,5 @@
 """
-Copyright (C) 2023-2025 Julian Metzler
+Copyright (C) 2023-2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import crcmod
-import socket
 import time
 
 from PIL import Image, ImageOps, ImageSequence
@@ -25,8 +24,7 @@ from PIL import Image, ImageOps, ImageSequence
 class VistraI:
     """
     A VISTRA-I display
-    
-    Please note that currently only Ethernet connection is supported.
+    Supports TCP/IP and serial connection.
     """
     
     MSG_TYPE_CLEAR_PANEL = 0x01
@@ -53,48 +51,23 @@ class VistraI:
     EFFECT3_WINDOW_INVERTED = 0x40
     EFFECT3_INVERTED = 0x50
     
-    def __init__(self, hostname, port, address = 0, timeout = 5.0, encoding_errors = "replace"):
+    def __init__(self, backend, address = 0, encoding_errors = "replace"):
         """
-        hostname:
-        The network hostname of the display to connect to
-        
-        port:
-        The TCP port to use for communication
+        backend:
+        Backend to use for sending data
         
         address:
-        The panel address (0 for all panels, only useful for RS232)
-        
-        timeout:
-        Timeout for socket connection in seconds
+        Panel address. Only needed for serial backend.
         
         encoding_errors:
         Which error handler to use in case of encoding errors
         """
         
-        self.hostname = hostname
-        self.port = port
+        self.backend = backend
         self.address = address
-        self.timeout = timeout
         self.encoding_errors = encoding_errors
         self.crc = crcmod.predefined.mkPredefinedCrcFun('crc-ccitt-false')
         self.queue = None
-        self.socket = None
-        self.last_transmission = 0
-        #self.renew_socket()
-    
-    def renew_socket(self):
-        """
-        Renew the socket in case it got fucked up
-        """
-        
-        try:
-            self.socket.close()
-        except:
-            pass
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(self.timeout)
-        self.socket.connect((self.hostname, self.port))
-        #print("Socket renewed.")
     
     def init_queue(self):
         """
@@ -140,44 +113,6 @@ class VistraI:
         message = bytearray([0x1B]) + message
         message += bytearray([crc_lsb, crc_msb])
         return message
-    
-    def send_raw_message(self, message):
-        """
-        Send a raw message to the display.
-        
-        message:
-        The message as a bytestring
-        """
-        
-        try:
-            #print(message)
-            self.socket.send(message)
-            # Receive up until the "RequestedDataType" byte
-            reply = bytearray(self.socket.recv(9))
-            #print(reply)
-            data_type = reply[8]
-            if data_type != 0x00:
-                # Receive data length
-                reply += bytearray(self.socket.recv(4))
-                length = (
-                    (reply[12] << 24)
-                    | (reply[11] << 16)
-                    | (reply[10] << 8)
-                    | reply[9])
-                # Receive the rest of the data
-                reply += bytearray(self.socket.recv(length+1)) # +1 for end byte
-            else:
-                # Receive end byte
-                reply += bytearray(self.socket.recv(1))
-            self.last_transmission = time.time()
-            return reply
-        except socket.timeout:
-            # Silently try to renew socket and fail silently
-            try:
-                self.renew_socket()
-            except:
-                pass
-            raise
     
     def send_message(self, message):
         """
@@ -232,10 +167,7 @@ class VistraI:
             complete_message += msg
         
         complete_message = self.wrap_message(complete_message)
-        # Renew socket if necessary
-        if time.time() - self.last_transmission > 300: # 5 minutes
-            self.renew_socket()
-        return self.send_raw_message(complete_message)
+        return self.backend.send_raw_message(complete_message)
     
     def clear_panel(self):
         """

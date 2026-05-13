@@ -16,3 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from .vistra_i import VistraI
+from .vistra_i_backend_tcp import VistraITCPBackend
+from .vistra_i_backend_serial import VistraISerialBackend

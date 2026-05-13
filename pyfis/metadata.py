@@ -28,5 +28,5 @@ extras_require = {
     'graphics': ['pillow'],
     'raspberrypi': ['RPi.GPIO']
 }
-url = "https://github.com/Mezgrman/pyFIS"
+url = "https://github.com/CatoLynx/pyFIS"
 keywords = "led sign message board effect library wrapper serial text display ibis vdv300 bus next stop train mono lawo splitflap industrial factory"
