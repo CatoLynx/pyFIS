@@ -31,6 +31,9 @@ class DummySerialPort(BaseSerialPort):
     def read(self, length):
         return bytes(length)
 
+    def inWaiting(self):
+        return 0
+
     def setRTS(self, state):
         pass
 

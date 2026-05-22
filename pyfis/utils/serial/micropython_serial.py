@@ -44,3 +44,6 @@ class MicropythonSerialPort(BaseSerialPort):
 
     def read(self, length):
         return self.device.read(length)
+
+    def inWaiting(self):
+        raise self.device.inWaiting()

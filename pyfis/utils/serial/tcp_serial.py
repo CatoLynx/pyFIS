@@ -45,6 +45,9 @@ class TcpSerialPort(BaseSerialPort):
         # Read the specified number of bytes, blocking
         return self.socket.recv(length)
 
+    def inWaiting(self):
+        raise NotImplementedError
+
     def setRTS(self, state):
         pass
 

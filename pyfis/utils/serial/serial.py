@@ -42,6 +42,9 @@ class SerialPort(BaseSerialPort):
     def read(self, length):
         return self.device.read(length)
 
+    def inWaiting(self):
+        return self.device.inWaiting()
+
     def setRTS(self, state):
         self.device.rts = state
 

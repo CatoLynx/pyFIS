@@ -32,6 +32,9 @@ class BaseSerialPort:
     def read(self, length):
         raise NotImplementedError
 
+    def inWaiting(self):
+        raise NotImplementedError
+
     def setRTS(self, state):
         raise NotImplementedError
 
