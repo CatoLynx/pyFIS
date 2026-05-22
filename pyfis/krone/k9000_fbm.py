@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import time
 
 from ..utils.serial import ensure_serial_port
-from ..utils.printing import _debug_print, debug_hex
+from ..utils.printing import debug_print_generic, debug_hex
 
 
 class Krone9000FBM:
@@ -96,7 +96,7 @@ class Krone9000FBM:
         if position is not None:
             cmd_bytes.append(position & 0b01111111)
         
-        _debug_print(self.debug, "TX:", debug_hex(cmd_bytes))
+        debug_print_generic(self.debug, "TX:", debug_hex(cmd_bytes))
         
         # Send it
         self.port.write(bytearray(cmd_bytes))
@@ -104,7 +104,7 @@ class Krone9000FBM:
         # Read response
         if num_response_bytes > 0:
             response = self.port.read(num_response_bytes)
-            _debug_print(self.debug, "RX:", debug_hex(response))
+            debug_print_generic(self.debug, "RX:", debug_hex(response))
             return response
         else:
             return None

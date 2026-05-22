@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-def _debug_print(debug, *args, **kwargs):
+def debug_print_generic(debug, *args, **kwargs):
     if debug:
         print(*args, **kwargs)
 
