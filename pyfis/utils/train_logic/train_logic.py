@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import csv
 import itertools
 
+from ..printing import debug_print_generic
+
 
 def vias_in_route(route, vias):
     # Check if the given vias are all present in the given route in the right order
