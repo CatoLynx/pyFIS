@@ -29,6 +29,10 @@ class SerialPort(BaseSerialPort):
         if not has_serial:
             raise RuntimeError("The serial library was not found. It is needed to create SerialPort objects.")
         self.device = serial.Serial(*args, **kwargs)
+
+    def __setattr__(self, name, val):
+        if name == "break_condition":
+            self.device.break_condition = val
     
     def open(self):
         return self.device.open()
