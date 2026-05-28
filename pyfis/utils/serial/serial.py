@@ -33,6 +33,8 @@ class SerialPort(BaseSerialPort):
     def __setattr__(self, name, val):
         if name == "break_condition":
             self.device.break_condition = val
+        else:
+            super().__setattr__(name, val)
     
     def open(self):
         return self.device.open()
