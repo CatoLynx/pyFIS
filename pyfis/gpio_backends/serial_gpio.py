@@ -18,27 +18,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from .base_gpio import BaseGpioBackend
 
 
-class DummyGpioBackend(BaseGpioBackend):
+class SerialGpioBackend(BaseGpioBackend):
     """
-    Dummy backend that does nothing
+    Backend that uses the RTS or DTR pin.
+    Channel 0 = RTS, channel 1 = DTR
     """
 
-    def __init__(self, debug = False):
+    def __init__(self, device, debug = False):
+        self.device = device
         self.debug = debug
 
     def setup_channel(self, channel, mode, pull=None):
         if self.debug:
-            print(f"DummyGPIO: Setting channel {channel} to mode {mode} with pull {pull}")
+            print(f"SerialGPIO: Ignoring channel setup request (only outputs without pull resistors available)")
 
     def clean_up(self):
         if self.debug:
-            print("DummyGPIO: Cleaning up")
+            print("SerialGPIO: Cleaning up (nothing to do)")
 
     def set_output(self, channel, state):
         if self.debug:
-            print(f"DummyGPIO: Setting channel {channel} to state {state}")
+            print(f"SerialGPIO: Setting channel {channel} to state {state}")
+        if channel == 0:
+            self.device.setRTS(not state)
+        elif channel == 1:
+            self.device.setDTR(not state)
 
     def get_input(self, channel):
         if self.debug:
-            print(f"DummyGPIO: Getting channel {channel} (returning LOW)")
+            print(f"SerialGPIO: Ignoring channel get request (only outputs without pull resistors available) (returning LOW)")
         return self.STATE_LOW

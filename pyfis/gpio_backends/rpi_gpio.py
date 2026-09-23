@@ -36,6 +36,8 @@ class RpiGpioBackend(BaseGpioBackend):
         gpio.setmode(gpio.BCM)
 
     def setup_channel(self, channel, mode, pull=None):
+        if self.debug:
+            print(f"RPiGPIO: Setting channel {channel} to mode {mode} with pull {pull}")
         if pull == self.PULL_UP:
             pud = gpio.PUD_UP
         elif pull == self.PULL_DOWN:
@@ -47,15 +49,21 @@ class RpiGpioBackend(BaseGpioBackend):
             gpio.setup(channel, gpio.IN, pull_up_down=pud)
 
     def clean_up(self):
+        if self.debug:
+            print("RPiGPIO: Cleaning up")
         gpio.cleanup()
 
     def set_output(self, channel, state):
+        if self.debug:
+            print(f"RPiGPIO: Setting channel {channel} to state {state}")
         if state == self.STATE_HIGH:
             gpio.output(channel, 1)
         elif state == self.STATE_LOW:
             gpio.output(channel, 0)
 
     def get_input(self, channel):
+        if self.debug:
+            print(f"RPiGPIO: Getting channel {channel} (returning LOW)")
         state = gpio.input(channel)
         if state:
             return self.STATE_HIGH

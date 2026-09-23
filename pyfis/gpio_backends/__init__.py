@@ -17,3 +17,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .dummy_gpio import DummyGpioBackend
 from .rpi_gpio import RpiGpioBackend
+from .serial_gpio import SerialGpioBackend
