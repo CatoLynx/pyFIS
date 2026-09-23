@@ -15,24 +15,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import RPi.GPIO as gpio
+try:
+    import RPi.GPIO as gpio
+    HAS_RPI_GPIO = True
+except ImportError:
+    HAS_RPI_GPIO = False
+
+from .base_gpio import BaseGpioBackend
 
 
-class RpiGpioBackend:
+class RpiGpioBackend(BaseGpioBackend):
     """
     Raspberry Pi GPIO backend
     """
 
-    MODE_IN = 1
-    MODE_OUT = 2
-
-    PULL_UP = 1
-    PULL_DOWN = 2
-
-    STATE_HIGH = 1
-    STATE_LOW = 0
-
     def __init__(self, debug = False):
+        if not HAS_RPI_GPIO:
+            raise ImportError("RPi.GPIO module is not installed")
         self.debug = debug
         gpio.setmode(gpio.BCM)
 
