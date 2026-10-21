@@ -1,5 +1,5 @@
 """
-Copyright (C) 2016 - 2025 Julian Metzler
+Copyright (C) 2016 - 2026 Julian Metzler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -514,6 +514,23 @@ class IBISProtocol:
             .format(self.vdv_hex(address),
                 self.vdv_hex(num_blocks),
                 text.ljust(num_blocks*16)))
+    
+    def DS021_PACOS(self, address, message):
+        """
+        PACOS derivative of DS021
+        
+        address:
+        The address of the display
+        
+        message:
+        The PACOS message
+        """
+        
+        length = len(message)
+        return self.send_telegram("aA{}{:>02}{}"
+            .format(self.vdv_hex(address),
+                self.vdv_hex(length),
+                message))
     
     def DS021a(self, address, stop_id, stop_text, change_text):
         """
