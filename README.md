@@ -8,6 +8,7 @@ This library currently supports the following devices:
   * IBIS devices
     * All standard telegrams as well as some manufacturer-specific variants
     * Connection via serial or TCP
+  * PACOS devices (e.g. bus stop displays)
   * LAWO's MONO system (still quite rough)
     * Support for sending bitmaps to some LED displays
     * Support for XY10 flipdot pixel control
