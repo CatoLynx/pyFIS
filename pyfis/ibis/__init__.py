@@ -18,3 +18,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from .ibis_master import IBISMaster
 from .ibis_serial import SerialIBISMaster
 from .ibis_tcp import TCPIBISMaster
+from .pacos_master import PACOSMaster

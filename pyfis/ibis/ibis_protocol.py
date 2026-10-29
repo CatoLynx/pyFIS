@@ -22,7 +22,7 @@ class IBISProtocol:
     All the logic related to the IBIS protocol
     """
     
-    def __init__(self, debug = False, encoding_errors = "replace"):
+    def __init__(self, debug = False, encoding_errors = "replace", encoding = "ascii", checksum_set_msb = False):
         """
         debug:
         Whether to print the sent and received telegrams
@@ -33,6 +33,8 @@ class IBISProtocol:
         
         self.debug = debug
         self.encoding_errors = encoding_errors
+        self.encoding = encoding
+        self.checksum_set_msb = checksum_set_msb
         
         # Simple telegram definitions
         self.DS001 = self._tg("l{:>03}")        # Line number, 1-4 digits
@@ -125,7 +127,7 @@ class IBISProtocol:
         telegram = telegram.replace("Ä", "[")
         telegram = telegram.replace("Ö", "\\")
         telegram = telegram.replace("Ü", "]")
-        telegram = telegram.encode('ascii', errors=self.encoding_errors)
+        telegram = telegram.encode(self.encoding, errors=self.encoding_errors)
         return telegram
     
     def wrap_telegram(self, telegram):
@@ -143,8 +145,34 @@ class IBISProtocol:
         checksum = 0x7F
         for byte in telegram:
             checksum ^= byte
+        if self.checksum_set_msb:
+            checksum |= 0x80
         telegram.append(checksum)
         return telegram
+
+    def read_response(self, length=-1):
+        """
+        Read the response to a telegram.
+        
+        reply_length:
+        How many bytes to expect as a response. -1 to read until CR and checksum.
+        """
+        if length == -1:
+            reply = b""
+            byte = b""
+            while byte != b"\r":
+                byte = self._receive(1)
+                reply += byte
+            # Read checksum
+            reply += self._receive(1)
+            self.debug_telegram(reply, receive = True)
+            reply = reply[:-2]
+            return reply.decode(self.encoding)
+        elif length > 0:
+            reply = self._receive(length + 2)
+            self.debug_telegram(reply, receive = True)
+            reply = reply[:-2]
+            return reply.decode(self.encoding)
     
     def send_telegram(self, telegram, reply_length = 0):
         """
@@ -154,7 +182,7 @@ class IBISProtocol:
         The telegram to send
         
         reply_length:
-        How many bytes to expect as a reply
+        How many bytes to expect as a reply. -1 to read until CR and checksum.
         
         Returns:
         The received telegram OR None
@@ -171,18 +199,18 @@ class IBISProtocol:
         telegram = self.wrap_telegram(telegram)
         self.debug_telegram(telegram)
         self._send(telegram)
-        if reply_length:
-            reply = self._receive(reply_length + 2)
-            self.debug_telegram(reply, receive = True)
-            reply = reply[:-2]
-            return reply.decode('latin1')
+        if reply_length != 0:
+            return self.read_response(reply_length)
     
-    def vdv_hex(self, value):
+    def vdv_hex(self, value, pad = False):
         """
         Convert a numerical value into the VDV hexadecimal representation
         
         value:
         The value to convert (0 to 255) OR a VDV Hex value to convert back
+
+        pad:
+        If True, pads the VDV Hex conversion result to two bytes
         
         Returns:
         The VDV Hex value OR the integer for the VDV Hex value
@@ -196,7 +224,10 @@ class IBISProtocol:
                 low_nibble = value % 16
                 return vdvhex[high_nibble] + vdvhex[low_nibble]
             else:
-                return vdvhex[value]
+                if pad:
+                    return vdvhex[0] + vdvhex[value]
+                else:
+                    return vdvhex[value]
         else:
             assert 1 <= len(value) <= 2
             if len(value) == 2:
@@ -514,23 +545,6 @@ class IBISProtocol:
             .format(self.vdv_hex(address),
                 self.vdv_hex(num_blocks),
                 text.ljust(num_blocks*16)))
-    
-    def DS021_PACOS(self, address, message):
-        """
-        PACOS derivative of DS021
-        
-        address:
-        The address of the display
-        
-        message:
-        The PACOS message
-        """
-        
-        length = len(message)
-        return self.send_telegram("aA{}{:>02}{}"
-            .format(self.vdv_hex(address),
-                self.vdv_hex(length),
-                message))
     
     def DS021a(self, address, stop_id, stop_text, change_text):
         """
