@@ -148,7 +148,7 @@ class PACOSMaster(IBISProtocol):
         """
         return text.replace("%", "%%")
 
-    def _send_or_add(self, message):
+    def pacos_message(self, message):
         if self.command_collection_active:
             if len(self.current_message + message) > 255:
                 raise ValueError("Message length would exceed 255 characters")
@@ -192,7 +192,7 @@ class PACOSMaster(IBISProtocol):
         attribute: see ATTR_ definitions in this class
         """
         message = f"%00{x_start:03d}{x_end:03d}{y_end:03d}{self.vdv_hex(attribute)}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def define_field_row_based(self, row, field, attribute):
         """
@@ -203,7 +203,7 @@ class PACOSMaster(IBISProtocol):
         attribute: see ATTR_ definitions in this class
         """
         message = f"%01{row:02d}{field}{self.vdv_hex(attribute)}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_text_start_position(self, x, y):
         """
@@ -211,7 +211,7 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%02{x:03d}{y:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def define_field_char_based(self, x_start, x_end, y_end, attribute):
         """
@@ -221,7 +221,7 @@ class PACOSMaster(IBISProtocol):
         attribute: see ATTR_ definitions in this class
         """
         message = f"%03{x_start:03d}{x_end:03d}{y_end:03d}{self.vdv_hex(attribute)}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def define_field(self, x_start, x_end, y_start, y_end, attribute):
         """
@@ -231,7 +231,7 @@ class PACOSMaster(IBISProtocol):
         attribute: see ATTR_ definitions in this class
         """
         message = f"%04{x_start:03d}{x_end:03d}{y_start:03d}{y_end:03d}{self.vdv_hex(attribute)}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_text_start_position_char_based(self, x, y):
         """
@@ -239,7 +239,7 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%05{x:03d}{y:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def text(self, text):
         """
@@ -250,21 +250,21 @@ class PACOSMaster(IBISProtocol):
         if len(text) > 245:
             raise ValueError("Maximum text length is 245 characters")
         message = f"%10{text}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def predefined_text(self, text_id):
         """
         Recall predefined text based on ID (1 to 999)
         """
         message = f"%11{text_id:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def predefined_graphics(self, graphics_id):
         """
         Recall predefined graphics based on ID (1 to 99)
         """
         message = f"%12{graphics_id:02d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def clock(self, mode):
         """
@@ -272,7 +272,7 @@ class PACOSMaster(IBISProtocol):
         Mode: 1="hh:mm", 2="hh.mm", 3="hh:mm.ss", 4="hh:mm:ss"
         """
         message = f"%13{mode}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def clear_area(self, x_start, x_end, y_start, y_end):
         """
@@ -281,7 +281,7 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%20{x_start:03d}{x_end:03d}{y_start:03d}{y_end:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def clear_row_based(self, row, field):
         """
@@ -291,7 +291,7 @@ class PACOSMaster(IBISProtocol):
         Field range: 1 to 9, or 0 to clear the entire row
         """
         message = f"%21{row:02d}{field}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def clear_row(self, y_end):
         """
@@ -300,7 +300,7 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%22{y_end:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def clear_display(self):
         """
@@ -308,7 +308,7 @@ class PACOSMaster(IBISProtocol):
         This does not reset active format attributes!
         """
         message = "%23"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def clear_area_char_based(self, x_start, x_end, y_start, y_end):
         """
@@ -317,7 +317,7 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%24{x_start:03d}{x_end:03d}{y_start:03d}{y_end:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_time(self, time):
         """
@@ -325,7 +325,7 @@ class PACOSMaster(IBISProtocol):
         time must be something that implements strftime()
         """
         message = f"%30{time.strftime('%H%M%S')}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_background_buffer(self, mode):
         """
@@ -336,7 +336,7 @@ class PACOSMaster(IBISProtocol):
         2 = Everything from now on will be written to the background buffer
         """
         message = f"%31{mode}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def init_display(self):
         """
@@ -344,7 +344,7 @@ class PACOSMaster(IBISProtocol):
         Clears the display and sets default attributes
         """
         message = "%32"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_standby_mode(self, mode):
         """
@@ -352,7 +352,7 @@ class PACOSMaster(IBISProtocol):
         True = Standby, False = Normal
         """
         message = f"%33{int(mode)}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_night_mode(self, mode):
         """
@@ -360,7 +360,7 @@ class PACOSMaster(IBISProtocol):
         True = Night, False = Day
         """
         message = f"%34{int(mode)}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def show_special_screen(self):
         """
@@ -368,7 +368,7 @@ class PACOSMaster(IBISProtocol):
         Clears the display, sets default attributes and shows the special screen
         """
         message = "%35"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_default_attributes(self, text):
         """
@@ -376,7 +376,7 @@ class PACOSMaster(IBISProtocol):
         It's unclear how exactly this is used!
         """
         message = f"%36{text}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def horizontal_line(self, x_start, x_end, y, width):
         """
@@ -385,7 +385,7 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%40{x_start:03d}{x_end:03d}{y:03d}{width}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def vertical_line(self, x, y_start, y_end, width):
         """
@@ -394,7 +394,7 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%41{x:03d}{y_start:03d}{y_end:03d}{width}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def rectangle(self, x_start, x_end, y_start, y_end):
         """
@@ -403,14 +403,14 @@ class PACOSMaster(IBISProtocol):
         Coordinate range: 1 to 999
         """
         message = f"%42{x_start:03d}{x_end:03d}{y_start:03d}{y_end:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def recall_configuration(self, config_id):
         """
         Recall a predefined configuration with the given ID (1 to 999)
         """
         message = f"%50{config_id:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def recall_configuration_with_blank_field_0(self, config_id):
         """
@@ -418,7 +418,7 @@ class PACOSMaster(IBISProtocol):
         and set a blank text in field 0
         """
         message = f"%51{config_id:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def check_config_availability(self, config_id, version):
         """
@@ -426,7 +426,7 @@ class PACOSMaster(IBISProtocol):
         and the given version (1 to 99) is available
         """
         message = f"%60{config_id:03d}{version:02d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def send_config(self, config_id, version, block, data):
         """
@@ -438,7 +438,7 @@ class PACOSMaster(IBISProtocol):
         if len(data) > 246:
             raise ValueError("Maximum data length is 246 characters")
         message = f"%61{config_id:03d}{version:02d}{block:03d}{data}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_master_timeout(self, timeout):
         """
@@ -446,21 +446,21 @@ class PACOSMaster(IBISProtocol):
         After this timeout, the display will show its fallback text
         """
         message = f"%70{timeout:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_protocol_timeout(self, timeout):
         """
         Set the protocol timeout in milliseconds (1 to 999)
         """
         message = f"%71{timeout:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_page_switch_interval(self, interval):
         """
         Set page switch interval in seconds (0 to 999)
         """
         message = f"%72{interval:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def set_parameters(self, slow_scroll_speed, fast_scroll_speed, slow_switch_interval, fast_switch_interval, *params):
         """
@@ -474,7 +474,7 @@ class PACOSMaster(IBISProtocol):
         message = f"%74{len(parameters):02d}"
         for parameter in parameters:
             message += self.vdv_hex(parameter, pad=True)
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def delete_data(self, mode):
         """
@@ -485,21 +485,21 @@ class PACOSMaster(IBISProtocol):
         3 = delete custom characters
         """
         message = f"%80{mode}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def store_text(self, text_id, text):
         """
         Store a text (ID 1 to 999) to be recalled later
         """
         message = f"%81{text_id:03d}{self._escape(text)}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def store_field(self, field_id, x_start, x_end):
         """
         Store a field (ID 1 to 9) to be recalled later
         """
         message = f"%82{field_id}{x_start:03d}{x_end:03d}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def store_custom_character(self, font_id, size, char_id, data):
         """
@@ -510,7 +510,7 @@ class PACOSMaster(IBISProtocol):
         message = f"%83{font_id}{self.vdv_hex(size)}00{char_id:03d}{len(data):02d}"
         for byte in data:
             message += self.vdv_hex(byte, pad=True)
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def delete_fallback_slot(self, slot):
         """
@@ -518,7 +518,7 @@ class PACOSMaster(IBISProtocol):
         This command must be at the beginning of a message!
         """
         message = f"%84{slot}"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
 
     def read_fallback_slot(self, slot):
         """
@@ -538,7 +538,7 @@ class PACOSMaster(IBISProtocol):
         This command must be at the beginning of a message!
         """
         _message = f"%86{slot}{message}"
-        return self._send_or_add(_message)
+        return self.pacos_message(_message)
 
     def read_version(self):
         """
@@ -555,4 +555,4 @@ class PACOSMaster(IBISProtocol):
         Run a display self-test
         """
         message = "%:0"
-        return self._send_or_add(message)
+        return self.pacos_message(message)
