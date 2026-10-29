@@ -274,13 +274,13 @@ class PACOSMaster(IBISProtocol):
         message = f"%13{mode}"
         return self.pacos_message(message)
 
-    def clear_area(self, x_start, x_end, y_start, y_end):
+    def clear_area(self, x_start, y_start, x_end, y_end):
         """
         Clear a rectangular area,
         giving left and right X coordinates and the top and bottom Y coordinates
         Coordinate range: 1 to 999
         """
-        message = f"%20{x_start:03d}{x_end:03d}{y_start:03d}{y_end:03d}"
+        message = f"%20{x_start:03d}{y_start:03d}{x_end:03d}{y_end:03d}"
         return self.pacos_message(message)
 
     def clear_row_based(self, row, field):
@@ -310,13 +310,13 @@ class PACOSMaster(IBISProtocol):
         message = "%23"
         return self.pacos_message(message)
 
-    def clear_area_char_based(self, x_start, x_end, y_start, y_end):
+    def clear_area_char_based(self, x_start, y_start, x_end, y_end):
         """
         Clear a rectangular area with character-based coordinates,
         giving left and right X coordinates and the bottom Y coordinate
         Coordinate range: 1 to 999
         """
-        message = f"%24{x_start:03d}{x_end:03d}{y_start:03d}{y_end:03d}"
+        message = f"%24{x_start:03d}{y_start:03d}{x_end:03d}{y_end:03d}"
         return self.pacos_message(message)
 
     def set_time(self, time):
