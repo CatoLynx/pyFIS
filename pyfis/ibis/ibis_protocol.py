@@ -162,6 +162,8 @@ class IBISProtocol:
             byte = b""
             while byte != b"\r":
                 byte = self._receive(1)
+                if not byte:
+                    raise OSError("Not enough data received")
                 reply += byte
             # Read checksum
             reply += self._receive(1)
@@ -170,6 +172,8 @@ class IBISProtocol:
             return reply.decode(self.encoding)
         elif length > 0:
             reply = self._receive(length + 2)
+            if len(reply) < length + 2:
+                raise OSError("Not enough data received")
             self.debug_telegram(reply, receive = True)
             reply = reply[:-2]
             return reply.decode(self.encoding)
